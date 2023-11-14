@@ -18,7 +18,7 @@ EMBEDDING_MODEL_OUTPUT_PATH = "output"
 
 # 要运行的 LLM 名称，可以包括本地模型和在线模型。
 # 第一个将作为 API 和 WEBUI 的默认模型
-LLM_MODELS = ["chatglm2-6b", "zhipu-api", "openai-api"]
+LLM_MODELS = ["chatglm2-6b", "zhipu-api", "openai-api", "xinghuo-api"]
 
 # AgentLM模型的名称 (可以不指定，指定之后就锁定进入Agent之后的Chain的模型，不指定就是LLM_MODELS[0])
 Agent_MODEL = None
@@ -42,8 +42,8 @@ ONLINE_LLM_MODEL = {
     "openai-api": {
         "model_name": "gpt-35-turbo",
         "api_base_url": "https://api.openai.com/v1",
-        "api_key": "",
-        "openai_proxy": "",
+        "api_key": "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",
+        "openai_proxy": "http://127.0.0.1:7890",
     },
 
     # 具体注册及api key获取请前往 http://open.bigmodel.cn
@@ -65,10 +65,10 @@ ONLINE_LLM_MODEL = {
 
     # 具体注册及api key获取请前往 https://xinghuo.xfyun.cn/
     "xinghuo-api": {
-        "APPID": "",
-        "APISecret": "",
-        "api_key": "",
-        "version": "v1.5",  # 你使用的讯飞星火大模型版本，可选包括 "v3.0", "v1.5", "v2.0"
+        "APPID": "8e3ee85b",
+        "APISecret": "YTliYmFhMzc5NzY0OGRjZTZhZWRhN2E0",
+        "api_key": "417d31b8123e1517e5b1171e6b41b7d7",
+        "version": "v3.0",  # 你使用的讯飞星火大模型版本，可选包括 "v3.0", "v1.5", "v2.0"
         "provider": "XingHuoWorker",
     },
 
@@ -76,8 +76,8 @@ ONLINE_LLM_MODEL = {
     "qianfan-api": {
         "version": "ERNIE-Bot",  # 注意大小写。当前支持 "ERNIE-Bot" 或 "ERNIE-Bot-turbo"， 更多的见官方文档。
         "version_url": "",  # 也可以不填写version，直接填写在千帆申请模型发布的API地址
-        "api_key": "",
-        "secret_key": "",
+        "api_key": "0mn8wnfLGsjzpFi44LcMq1xj",
+        "secret_key": "jTOcUZuhcxlR4wLvx94xm8rRFtKrRbOZ",
         "provider": "QianFanWorker",
     },
 
