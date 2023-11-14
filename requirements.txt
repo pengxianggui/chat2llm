@@ -1,4 +1,4 @@
-# API requirements
+﻿# API requirements
 
 langchain>=0.0.329 # 推荐使用最新的Langchain
 langchain-experimental>=0.0.30
