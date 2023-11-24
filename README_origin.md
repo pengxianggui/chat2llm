@@ -1,7 +1,7 @@
 ![](img/logo-long-chatchat-trans-v2.png)
 
 
-🌍 [READ THIS IN ENGLISH](README_en.md)
+🌍 [READ THIS IN ENGLISH](README_origin_en.md)
 
 📃 **LangChain-Chatchat** (原 Langchain-ChatGLM)
 
@@ -11,15 +11,15 @@
 
 ## 目录
 
-* [介绍](README.md#介绍)
-* [解决的痛点](README.md#解决的痛点)
-* [快速上手](README.md#快速上手)
-  * [1. 环境配置](README.md#1-环境配置)
-  * [2. 模型下载](README.md#2-模型下载)
-  * [3. 初始化知识库和配置文件](README.md#3-初始化知识库和配置文件)
-  * [4. 一键启动](README.md#4-一键启动)
-  * [5. 启动界面示例](README.md#5-启动界面示例)
-* [联系我们](README.md#联系我们)
+* [介绍](README_origin.md#介绍)
+* [解决的痛点](README_origin.md#解决的痛点)
+* [快速上手](README_origin.md#快速上手)
+  * [1. 环境配置](README_origin.md#1-环境配置)
+  * [2. 模型下载](README_origin.md#2-模型下载)
+  * [3. 初始化知识库和配置文件](README_origin.md#3-初始化知识库和配置文件)
+  * [4. 一键启动](README_origin.md#4-一键启动)
+  * [5. 启动界面示例](README_origin.md#5-启动界面示例)
+* [联系我们](README_origin.md#联系我们)
 
 
 ## 介绍
