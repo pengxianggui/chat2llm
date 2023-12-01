@@ -28,3 +28,10 @@
 具体数值没测过，之前16G，偶尔python内存不足退出，后来升级到24G, 似乎没有遇到过了。
 6. 如果涉及知识库功能，需要本地跑一些模型，这些模型在项目里是不带的，运行是会自动从huggingface下载，不幸的是它不久前被墙了，不过可以翻墙下载下来后
 放到本地目录去。为避免项目过大，我没把下下来的模型放仓库。
+
+
+## 待办
+- [ ] 用户、终端认证
+- [ ] 知识库列表接口追加返回描述信息和知识库中文名
+- [ ] 解决对话带有history时, 几轮对话下来会触发报错: [utils.py[line:25] - ERROR: TypeError: Caught exception: object of type 'NoneType' has no len()](https://github.com/chatchat-space/Langchain-Chatchat/issues/2228)
+- [ ] 增加mysql存储功能，存储数据: 会话、知识库中文名等内容。
