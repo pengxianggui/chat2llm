@@ -143,10 +143,10 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
 def mount_knowledge_routes(app: FastAPI):
     from server.chat.knowledge_base_chat import knowledge_base_chat
     from server.chat.agent_chat import agent_chat
-    from server.knowledge_base.kb_api import list_kbs, create_kb, delete_kb
+    from server.knowledge_base.kb_api import list_kbs, list_kbs_v2, create_kb, delete_kb
     from server.knowledge_base.kb_doc_api import (list_files, upload_docs, delete_docs,
                                                 update_docs, download_doc, recreate_vector_store,
-                                                search_docs, DocumentWithScore, update_info)
+                                                search_docs, DocumentWithScore, update_zh_name, update_info)
 
     app.post("/chat/knowledge_base_chat",
              tags=["Chat"],
@@ -160,7 +160,12 @@ def mount_knowledge_routes(app: FastAPI):
     app.get("/knowledge_base/list_knowledge_bases",
             tags=["Knowledge Base Management"],
             response_model=ListResponse,
-            summary="获取知识库列表")(list_kbs)
+            summary="获取知识库名称列表")(list_kbs)
+
+    app.get('/knowledge_base/list_knowledge_bases_v2',
+            tags=["Knowledge Base Management"],
+            response_model=BaseResponse,
+            summary="获取知识库列表")(list_kbs_v2)
 
     app.post("/knowledge_base/create_knowledge_base",
              tags=["Knowledge Base Management"],
@@ -198,11 +203,18 @@ def mount_knowledge_routes(app: FastAPI):
              summary="删除知识库内指定文件"
              )(delete_docs)
 
+    app.post("/knowledge_base/update_zh_name",
+             tags=["Knowledge Base Management"],
+             response_model=BaseResponse,
+             summary="更新知识库中文名"
+             )(update_zh_name)
+
     app.post("/knowledge_base/update_info",
              tags=["Knowledge Base Management"],
              response_model=BaseResponse,
              summary="更新知识库介绍"
              )(update_info)
+
     app.post("/knowledge_base/update_docs",
              tags=["Knowledge Base Management"],
              response_model=BaseResponse,

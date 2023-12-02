@@ -2,7 +2,7 @@ import urllib
 from server.utils import BaseResponse, ListResponse
 from server.knowledge_base.utils import validate_kb_name
 from server.knowledge_base.kb_service.base import KBServiceFactory
-from server.db.repository.knowledge_base_repository import list_kbs_from_db
+from server.db.repository.knowledge_base_repository import list_kbs_from_db, list_kbs_from_db_v2
 from configs import EMBEDDING_MODEL, logger, log_verbose
 from fastapi import Body
 
@@ -12,10 +12,16 @@ def list_kbs():
     return ListResponse(data=list_kbs_from_db())
 
 
+def list_kbs_v2():
+    return BaseResponse(data=list_kbs_from_db_v2())
+
+
 def create_kb(knowledge_base_name: str = Body(..., examples=["samples"]),
-            vector_store_type: str = Body("faiss"),
-            embed_model: str = Body(EMBEDDING_MODEL),
-            ) -> BaseResponse:
+              kb_zh_name: str = Body(..., examples=["知识库中文名"]),
+              kb_info: str = Body(..., examples=["知识库介绍"]),
+              vector_store_type: str = Body("faiss"),
+              embed_model: str = Body(EMBEDDING_MODEL),
+              ) -> BaseResponse:
     # Create selected knowledge base
     if not validate_kb_name(knowledge_base_name):
         return BaseResponse(code=403, msg="Don't attack me")
@@ -28,6 +34,8 @@ def create_kb(knowledge_base_name: str = Body(..., examples=["samples"]),
 
     kb = KBServiceFactory.get_service(knowledge_base_name, vector_store_type, embed_model)
     try:
+        kb.kb_zh_name = kb_zh_name
+        kb.kb_info = kb_info
         kb.create_kb()
     except Exception as e:
         msg = f"创建知识库出错： {e}"
@@ -39,8 +47,8 @@ def create_kb(knowledge_base_name: str = Body(..., examples=["samples"]),
 
 
 def delete_kb(
-    knowledge_base_name: str = Body(..., examples=["samples"])
-    ) -> BaseResponse:
+        knowledge_base_name: str = Body(..., examples=["samples"])
+) -> BaseResponse:
     # Delete selected knowledge base
     if not validate_kb_name(knowledge_base_name):
         return BaseResponse(code=403, msg="Don't attack me")

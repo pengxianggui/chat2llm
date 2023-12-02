@@ -136,6 +136,13 @@ def test_search_docs(api="/knowledge_base/search_docs"):
     pprint(data)
     assert isinstance(data, list) and len(data) == VECTOR_SEARCH_TOP_K
 
+def test_update_zh_name(api="/knowledge_base/update_zh_name"):
+    url = api_base_url + api
+    print("\n更新知识库中文名")
+    r = requests.post(url, json={"knowledge_base_name": "samples", "kb_zh_name": "知识库中文名"})
+    data = r.json()
+    pprint(data)
+    assert data["code"] == 200
 
 def test_update_info(api="/knowledge_base/update_info"):
     url = api_base_url + api

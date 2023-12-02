@@ -63,6 +63,9 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
     else:
         selected_kb_index = 0
 
+    if "selected_kb_zh_name" not in st.session_state:
+        st.session_state["selected_kb_zh_name"] = ""
+
     if "selected_kb_info" not in st.session_state:
         st.session_state["selected_kb_info"] = ""
 
@@ -84,8 +87,13 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
 
             kb_name = st.text_input(
                 "新建知识库名称",
-                placeholder="新知识库名称，不支持中文命名",
+                placeholder="新知识库名称，注意不支持中文命名",
                 key="kb_name",
+            )
+            kb_zh_name = st.text_input(
+                "知识库中文名",
+                placeholder="知识库中文名，尽可能简短明了，不超过10个字",
+                key="kb_zh_name",
             )
             kb_info = st.text_input(
                 "知识库简介",
@@ -130,25 +138,36 @@ def knowledge_base_page(api: ApiRequest, is_lite: bool = None):
             else:
                 ret = api.create_knowledge_base(
                     knowledge_base_name=kb_name,
+                    kb_zh_name=kb_zh_name,
+                    kb_info=kb_info,
                     vector_store_type=vs_type,
                     embed_model=embed_model,
                 )
                 st.toast(ret.get("msg", " "))
                 st.session_state["selected_kb_name"] = kb_name
+                st.session_state["selected_kb_zh_name"] = kb_zh_name
                 st.session_state["selected_kb_info"] = kb_info
                 st.rerun()
 
     elif selected_kb:
         kb = selected_kb
+        st.session_state["selected_kb_zh_name"] = kb_list[kb]['kb_zh_name']
         st.session_state["selected_kb_info"] = kb_list[kb]['kb_info']
         # 上传文件
         files = st.file_uploader("上传知识文件：",
                                  [i for ls in LOADER_DICT.values() for i in ls],
                                  accept_multiple_files=True,
                                  )
+        # 知识库中文名
+        kb_zh_name = st.text_area("请输入知识库中文名:", value=st.session_state["selected_kb_zh_name"], max_chars=None, key=None,
+                               help=None, on_change=None, args=None, kwargs=None)
+        if kb_zh_name != st.session_state["selected_kb_zh_name"]:
+            st.session_state["selected_kb_zh_name"] = kb_zh_name
+            api.update_kb_zh_name(kb, kb_zh_name)
+
+        # 知识库介绍
         kb_info = st.text_area("请输入知识库介绍:", value=st.session_state["selected_kb_info"], max_chars=None, key=None,
                                help=None, on_change=None, args=None, kwargs=None)
-
         if kb_info != st.session_state["selected_kb_info"]:
             st.session_state["selected_kb_info"] = kb_info
             api.update_kb_info(kb, kb_info)

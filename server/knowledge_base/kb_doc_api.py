@@ -211,6 +211,21 @@ def delete_docs(
     return BaseResponse(code=200, msg=f"文件删除完成", data={"failed_files": failed_files})
 
 
+def update_zh_name(
+        knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
+        kb_zh_name: str = Body(..., description="知识库中文名", examples=["知识库中文名"]),
+):
+    if not validate_kb_name(knowledge_base_name):
+        return BaseResponse(code=403, msg="Don't attack me")
+
+    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+    kb.update_zh_name(kb_zh_name)
+
+    return BaseResponse(code=200, msg=f"知识库中文名修改完成", data={"kb_zh_name": kb_zh_name})
+
+
 def update_info(
         knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
         kb_info: str = Body(..., description="知识库介绍", examples=["这是一个知识库"]),

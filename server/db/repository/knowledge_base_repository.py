@@ -3,13 +3,14 @@ from server.db.session import with_session
 
 
 @with_session
-def add_kb_to_db(session, kb_name, kb_info, vs_type, embed_model):
+def add_kb_to_db(session, kb_name, kb_zh_name, kb_info, vs_type, embed_model):
     # 创建知识库实例
     kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_name).first()
     if not kb:
-        kb = KnowledgeBaseModel(kb_name=kb_name, kb_info=kb_info, vs_type=vs_type, embed_model=embed_model)
+        kb = KnowledgeBaseModel(kb_name=kb_name, kb_zh_name=kb_zh_name, kb_info=kb_info, vs_type=vs_type, embed_model=embed_model)
         session.add(kb)
     else:  # update kb with new vs_type and embed_model
+        kb.kb_zh_name = kb_zh_name
         kb.kb_info = kb_info
         kb.vs_type = vs_type
         kb.embed_model = embed_model
@@ -20,6 +21,16 @@ def add_kb_to_db(session, kb_name, kb_info, vs_type, embed_model):
 def list_kbs_from_db(session, min_file_count: int = -1):
     kbs = session.query(KnowledgeBaseModel.kb_name).filter(KnowledgeBaseModel.file_count > min_file_count).all()
     kbs = [kb[0] for kb in kbs]
+    return kbs
+
+
+@with_session
+def list_kbs_from_db_v2(session):
+    kbs = session.query(KnowledgeBaseModel.kb_name).all()
+    if kbs:
+        kbs = [kb[0] for kb in kbs] # TODO 存在问题，我本意是返回对象数组，但这里仍然返回的知识库名组成的字符串数组
+    else:
+        kbs = []
     return kbs
 
 
@@ -54,6 +65,7 @@ def get_kb_detail(session, kb_name: str) -> dict:
     if kb:
         return {
             "kb_name": kb.kb_name,
+            "kb_zh_name": kb.kb_zh_name,
             "kb_info": kb.kb_info,
             "vs_type": kb.vs_type,
             "embed_model": kb.embed_model,

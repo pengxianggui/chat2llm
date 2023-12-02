@@ -56,7 +56,8 @@ class KBService(ABC):
                  embed_model: str = EMBEDDING_MODEL,
                  ):
         self.kb_name = knowledge_base_name
-        self.kb_info = KB_INFO.get(knowledge_base_name, f"关于{knowledge_base_name}的知识库")
+        self.kb_zh_name = f"{knowledge_base_name}的中文名"
+        self.kb_info = KB_INFO.get(knowledge_base_name, f"关于{knowledge_base_name}的知识库介绍")
         self.embed_model = embed_model
         self.kb_path = get_kb_path(self.kb_name)
         self.doc_path = get_doc_path(self.kb_name)
@@ -78,7 +79,7 @@ class KBService(ABC):
         if not os.path.exists(self.doc_path):
             os.makedirs(self.doc_path)
         self.do_create_kb()
-        status = add_kb_to_db(self.kb_name, self.kb_info, self.vs_type(), self.embed_model)
+        status = add_kb_to_db(self.kb_name, self.kb_zh_name, self.kb_info, self.vs_type(), self.embed_model)
         return status
 
     def clear_vs(self):
@@ -137,12 +138,20 @@ class KBService(ABC):
             os.remove(kb_file.filepath)
         return status
 
+    def update_zh_name(self, kb_zh_name: str):
+        """
+        更新知识库中文名
+        """
+        self.kb_zh_name = kb_zh_name
+        status = add_kb_to_db(self.kb_name, self.kb_zh_name, self.kb_info, self.vs_type(), self.embed_model)
+        return status
+
     def update_info(self, kb_info: str):
         """
         更新知识库介绍
         """
         self.kb_info = kb_info
-        status = add_kb_to_db(self.kb_name, self.kb_info, self.vs_type(), self.embed_model)
+        status = add_kb_to_db(self.kb_name, self.kb_zh_name, self.kb_info, self.vs_type(), self.embed_model)
         return status
 
     def update_doc(self, kb_file: KnowledgeFile, docs: List[Document] = [], **kwargs):
@@ -304,6 +313,7 @@ def get_kb_details() -> List[Dict]:
     for kb in kbs_in_folder:
         result[kb] = {
             "kb_name": kb,
+            "kb_zh_name": "",
             "vs_type": "",
             "kb_info": "",
             "embed_model": "",

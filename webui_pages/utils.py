@@ -439,6 +439,8 @@ class ApiRequest:
     def create_knowledge_base(
         self,
         knowledge_base_name: str,
+        kb_zh_name: str,
+        kb_info: str,
         vector_store_type: str = DEFAULT_VS_TYPE,
         embed_model: str = EMBEDDING_MODEL,
     ):
@@ -447,6 +449,8 @@ class ApiRequest:
         '''
         data = {
             "knowledge_base_name": knowledge_base_name,
+            "kb_zh_name": kb_zh_name,
+            "kb_info": kb_info,
             "vector_store_type": vector_store_type,
             "embed_model": embed_model,
         }
@@ -577,6 +581,21 @@ class ApiRequest:
         )
         return self._get_response_value(response, as_json=True)
 
+
+    def update_kb_zh_name(self,knowledge_base_name, kb_zh_name):
+        '''
+        对应api.py/knowledge_base/update_zh_name接口
+        '''
+        data = {
+            "knowledge_base_name": knowledge_base_name,
+            "kb_zh_name": kb_zh_name,
+        }
+
+        response = self.post(
+            "/knowledge_base/update_zh_name",
+            json=data,
+        )
+        return self._get_response_value(response, as_json=True)
 
     def update_kb_info(self,knowledge_base_name,kb_info):
         '''
