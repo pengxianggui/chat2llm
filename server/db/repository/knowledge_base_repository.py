@@ -26,12 +26,20 @@ def list_kbs_from_db(session, min_file_count: int = -1):
 
 @with_session
 def list_kbs_from_db_v2(session):
-    kbs = session.query(KnowledgeBaseModel.kb_name).all()
+    data = []
+    kbs = session.query(KnowledgeBaseModel).all()
     if kbs:
-        kbs = [kb[0] for kb in kbs] # TODO 存在问题，我本意是返回对象数组，但这里仍然返回的知识库名组成的字符串数组
-    else:
-        kbs = []
-    return kbs
+        for kb in kbs:
+            data.append({
+                "kb_name": kb.kb_name,
+                "kb_zh_name": kb.kb_zh_name,
+                "kb_info": kb.kb_info,
+                "vs_type": kb.vs_type,
+                "embed_model": kb.embed_model,
+                "file_count": kb.file_count,
+                "create_time": kb.create_time,
+            })
+    return data
 
 
 @with_session
@@ -43,12 +51,17 @@ def kb_exists(session, kb_name):
 
 @with_session
 def load_kb_from_db(session, kb_name):
+    # kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_name).first()
+    # if kb:
+    #     return kb
+    # else:
+    #     return None
     kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_name).first()
     if kb:
-        kb_name, vs_type, embed_model = kb.kb_name, kb.vs_type, kb.embed_model
+        kb_name, kb_zh_name, kb_info, vs_type, embed_model = kb.kb_name, kb.kb_zh_name, kb.kb_info, kb.vs_type, kb.embed_model
     else:
-        kb_name, vs_type, embed_model = None, None, None
-    return kb_name, vs_type, embed_model
+        kb_name, kb_zh_name, kb_info, vs_type, embed_model = None, None, None, None, None
+    return kb_name, kb_zh_name, kb_info, vs_type, embed_model
 
 
 @with_session

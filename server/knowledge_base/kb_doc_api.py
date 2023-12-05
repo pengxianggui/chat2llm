@@ -233,10 +233,10 @@ def update_info(
     if not validate_kb_name(knowledge_base_name):
         return BaseResponse(code=403, msg="Don't attack me")
 
-    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
-    if kb is None:
+    kb_service = KBServiceFactory.get_service_by_name(knowledge_base_name)
+    if kb_service is None:
         return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
-    kb.update_info(kb_info)
+    kb_service.update_info(kb_info)
 
     return BaseResponse(code=200, msg=f"知识库介绍修改完成", data={"kb_info": kb_info})
 

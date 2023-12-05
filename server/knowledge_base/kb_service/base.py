@@ -54,10 +54,12 @@ class KBService(ABC):
     def __init__(self,
                  knowledge_base_name: str,
                  embed_model: str = EMBEDDING_MODEL,
+                 kb_zh_name: str = "知识库中文名",
+                 kb_info: str = "知识库介绍"
                  ):
         self.kb_name = knowledge_base_name
-        self.kb_zh_name = f"{knowledge_base_name}的中文名"
-        self.kb_info = KB_INFO.get(knowledge_base_name, f"关于{knowledge_base_name}的知识库介绍")
+        self.kb_zh_name = kb_zh_name
+        self.kb_info = kb_info # KB_INFO.get(knowledge_base_name, f"关于{knowledge_base_name}的知识库介绍")
         self.embed_model = embed_model
         self.kb_path = get_kb_path(self.kb_name)
         self.doc_path = get_doc_path(self.kb_name)
@@ -295,10 +297,13 @@ class KBServiceFactory:
 
     @staticmethod
     def get_service_by_name(kb_name: str) -> KBService:
-        _, vs_type, embed_model = load_kb_from_db(kb_name)
+        _, kb_zh_name, kb_info, vs_type, embed_model = load_kb_from_db(kb_name)
         if _ is None:  # kb not in db, just return None
             return None
-        return KBServiceFactory.get_service(kb_name, vs_type, embed_model)
+        kb_service = KBServiceFactory.get_service(kb_name, vs_type, embed_model)
+        kb_service.kb_zh_name = kb_zh_name
+        kb_service.kb_info = kb_info
+        return kb_service
 
     @staticmethod
     def get_default():
