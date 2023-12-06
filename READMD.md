@@ -32,6 +32,30 @@
 
 ## 待办
 - [ ] 用户、终端认证
-- [ ] 知识库列表接口追加返回描述信息和知识库中文名
+- [x] 知识库列表接口追加返回描述信息和知识库中文名
 - [ ] 解决对话带有history时, 几轮对话下来会触发报错: [utils.py[line:25] - ERROR: TypeError: Caught exception: object of type 'NoneType' has no len()](https://github.com/chatchat-space/Langchain-Chatchat/issues/2228)
-- [ ] 增加mysql存储功能，存储数据: 会话、知识库中文名等内容。
+- [ ] 增加会话等数据的持久化
+
+
+### 关于认证
+由于不打算提供自己的用户体系，外部来源的用户体系又不止一个。因此采用c_token的方式认证和识别客户端和用户。即`client token`, 与用户无关，
+是通过Chat2LLM Server颁发给H5终端的一个公钥(client_key)对指定字符串进行加密后得到的一个token值。
+
+> 这里阐述下具体逻辑:
+> 
+> 例如h5页面计划嵌入到企微的某个小程序A里, 那么需要在Chat2LLM中为A添加一个client记录，包含的字段有: client_id, client_key, client_secret。
+> 小程序A在嵌入h5页面时, 地址参数里携带一个c_token。H5内部的所有请求都会携带c_token, Chat2LLM server 通过c_token识别client。
+> 
+> A如何生成c_token: 根据颁发的公钥client_key, 通过RSA加密字符串: "client_id|user_id|username", 生成c_token。
+> 
+> Chat2LLM Server如何解密c_token: 通过私钥client_secret解密c_token, 得到当前请求的client_id、user_id和username。顺利解析，并且client_id
+> 合法，则放行(若user_id库里不存在，则新增此用户)。否则响应拒绝。
+
+需要对数据库表做如下调整:
+1. 新增client表: id, client_key, client_secret, description, enable;
+2. 新增user表: client_id, user_id, username, enable;
+
+### 关于会话的持久化
+通过client_id + user_id确定用户。因此, 需要对数据库表做如下调整:
+1. 新增session表: id, client_id, user_id, mode, session_name, param
+2. 调整chat_history表: 增加字段(session_id, docs, message_html), id值采用前端提供的值
