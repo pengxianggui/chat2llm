@@ -8,7 +8,7 @@ log_verbose = False
 langchain.verbose = False
 
 # 是否保存聊天记录
-SAVE_CHAT_HISTORY = False
+SAVE_CHAT_HISTORY = True
 
 # 通常情况下不需要更改以下内容
 
