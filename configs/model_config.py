@@ -10,7 +10,8 @@ MODEL_ROOT_PATH = ""
 EMBEDDING_MODEL = "m3e-base" # bge-large-zh
 
 # Embedding 模型运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
-EMBEDDING_DEVICE = "auto"
+# EMBEDDING_DEVICE = "auto"
+EMBEDDING_DEVICE = "cpu" # 见issue: https://github.com/chatchat-space/Langchain-Chatchat/issues/2228
 
 # 如果需要在 EMBEDDING_MODEL 中增加自定义的关键字时配置
 EMBEDDING_KEYWORD_FILE = "keywords.txt"
