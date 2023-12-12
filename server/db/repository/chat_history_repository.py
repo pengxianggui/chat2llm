@@ -1,3 +1,5 @@
+from sqlalchemy import desc
+
 from server.db.session import with_session
 from server.db.models.chat_history_model import ChatHistoryModel
 import re
@@ -11,21 +13,22 @@ def _convert_query(query: str) -> str:
 
 
 @with_session
-def add_chat_history_to_db(session, chat_type, query, response="", chat_history_id=None, metadata: Dict = {}):
+def add_chat_history_to_db(session, session_id, chat_type, query, response="", chat_history_id=None,
+                           metadata: Dict = {}):
     """
     新增聊天记录
     """
     if not chat_history_id:
         chat_history_id = uuid.uuid4().hex
-    ch = ChatHistoryModel(id=chat_history_id, chat_type=chat_type, query=query, response=response,
-                        metadata=metadata)
+    ch = ChatHistoryModel(id=chat_history_id, session_id=session_id, chat_type=chat_type, query=query,
+                          response=response, metadata=metadata)
     session.add(ch)
     session.commit()
     return ch.id
 
 
 @with_session
-def update_chat_history(session, chat_history_id, response: str = None, metadata: Dict = None):
+def update_chat_history(session, chat_history_id, response: str = None, docs=[], metadata: Dict = None):
     """
     更新已有的聊天记录
     """
@@ -33,6 +36,8 @@ def update_chat_history(session, chat_history_id, response: str = None, metadata
     if ch is not None:
         if response is not None:
             ch.response = response
+        if docs is not None:
+            ch.docs = docs
         if isinstance(metadata, dict):
             ch.meta_data = metadata
         session.add(ch)
@@ -62,7 +67,7 @@ def get_chat_history_by_id(session, chat_history_id) -> ChatHistoryModel:
 
 @with_session
 def filter_chat_history(session, query=None, response=None, score=None, reason=None) -> List[ChatHistoryModel]:
-    ch =session.query(ChatHistoryModel)
+    ch = session.query(ChatHistoryModel)
     if query is not None:
         ch = ch.filter(ChatHistoryModel.query.ilike(_convert_query(query)))
     if response is not None:
@@ -73,3 +78,31 @@ def filter_chat_history(session, query=None, response=None, score=None, reason=N
         ch = ch.filter(ChatHistoryModel.feedback_reason.ilike(_convert_query(reason)))
 
     return ch
+
+
+# 获取指定记录的前num条记录。倒序
+@with_session
+def list_histories_form_db(session, session_id, chat_history_id, num):
+    data = []
+    histories = []
+    if chat_history_id is None:
+        # 获取session_id最新的num条记录
+        histories = session.query(ChatHistoryModel).filter_by(session_id=session_id).order_by(
+            desc(ChatHistoryModel.create_time)).limit(num).all()
+    else:
+        # 获取指定chat_history_id前最新的num条记录
+        chat: ChatHistoryModel = get_chat_history_by_id(chat_history_id)
+        histories = session.query(ChatHistoryModel).filter_by(ChatHistoryModel.create_time < chat.create_time).order_by(
+            desc(ChatHistoryModel.create_time)).limit(num).all()
+
+    if len(histories) > 0:
+        for h in histories:
+            data.append({
+                "id": h.id,
+                "query": h.query,
+                "response": h.response,
+                "docs": h.docs,
+                "create_time": h.create_time
+            })
+
+    return data

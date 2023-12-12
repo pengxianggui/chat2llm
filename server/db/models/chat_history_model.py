@@ -14,6 +14,8 @@ class ChatHistoryModel(Base):
     chat_type = Column(String(50), comment='聊天类型')
     query = Column(String(4096), comment='用户问题')
     response = Column(String(4096), comment='模型回答')
+    session_id = Column(String(32), comment='会话id')
+    docs = Column(JSON, default=[], comment='引用文档(知识库模式时)')
     # 记录知识库id等，以便后续扩展
     meta_data = Column(JSON, default={})
     # 满分100 越高表示评价越好
@@ -22,4 +24,4 @@ class ChatHistoryModel(Base):
     create_time = Column(DateTime, default=func.now(), comment='创建时间')
 
     def __repr__(self):
-        return f"<ChatHistory(id='{self.id}', chat_type='{self.chat_type}', query='{self.query}', response='{self.response}',meta_data='{self.meta_data}',feedback_score='{self.feedback_score}',feedback_reason='{self.feedback_reason}', create_time='{self.create_time}')>"
+        return f"<ChatHistory(id='{self.id}', chat_type='{self.chat_type}', query='{self.query}', response='{self.response}', session_id='{self.session_id}', docs='{self.docs}',meta_data='{self.meta_data}',feedback_score='{self.feedback_score}',feedback_reason='{self.feedback_reason}', create_time='{self.create_time}')>"

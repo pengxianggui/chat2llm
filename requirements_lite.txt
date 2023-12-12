@@ -60,3 +60,4 @@ duckduckgo-search
 metaphor-python
 strsimpy
 markdownify
+cryptography~=41.0.5

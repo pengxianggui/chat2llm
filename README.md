@@ -10,7 +10,7 @@
 - [x] 实现真正与LLM对话。
 - [x] 实现文件向量化并入库(文件形式)。
 - [x] 绝大部分的API接口。
-- [ ] 实现访问认证控制。
+- [x] 实现访问认证控制。
 
 ## 技术栈
 - python: 3.10.11+, 推荐3.10.12
@@ -38,24 +38,27 @@
 
 
 ### 关于认证
-由于不打算提供自己的用户体系，外部来源的用户体系又不止一个。因此采用c_token的方式认证和识别客户端和用户。即`client token`, 与用户无关，
-是通过Chat2LLM Server颁发给H5终端的一个公钥(client_key)对指定字符串进行加密后得到的一个token值。
+由于不打算提供自己的用户体系，外部来源的用户体系又不止一个。因此采用RSA非对称加密方式认证和识别客户端和用户。即通过请求头携带`api_token`实现认证。
 
 > 这里阐述下具体逻辑:
 > 
-> 例如h5页面计划嵌入到企微的某个小程序A里, 那么需要在Chat2LLM中为A添加一个client记录，包含的字段有: client_id, client_key, client_secret。
-> 小程序A在嵌入h5页面时, 地址参数里携带一个c_token。H5内部的所有请求都会携带c_token, Chat2LLM server 通过c_token识别client。
+> 例如h5页面计划嵌入到企微的某个小程序A里, 那么需要在Chat2LLM中为A添加一个client记录，包含的字段有: client_id, client_key, client_secret(公钥和密钥由Chat2LLM server生成)。
+> 小程序A在嵌入h5页面时, url地址参数里携带一个api_token。H5内部的所有请求都会携带api_token, Chat2LLM server 通过api_token识别client。
 > 
-> A如何生成c_token: 根据颁发的公钥client_key, 通过RSA加密字符串: "client_id|user_id|username", 生成c_token。
+> A如何生成api_token: 根据颁发的公钥client_key, 通过RSA加密字符串: "client_id|user_id|username", 得到A, 然后通过base64加密"client_id|A", 从而生成api_token。
 > 
-> Chat2LLM Server如何解密c_token: 通过私钥client_secret解密c_token, 得到当前请求的client_id、user_id和username。顺利解析，并且client_id
-> 合法，则放行(若user_id库里不存在，则新增此用户)。否则响应拒绝。
+> Chat2LLM Server如何解密api_token: 首先通过base64解密得到client_id和A, 再通过client_id找到对应的私钥，通过私钥client_secret解密A, 从而得到当前请求的client_id、user_id和username。
+> 顺利解析，并且client_id合法，则放行(若user_id库里不存在，则新增此用户)。否则响应拒绝。
 
 需要对数据库表做如下调整:
 1. 新增client表: id, client_key, client_secret, description, enable;
 2. 新增user表: client_id, user_id, username, enable;
 
+关于演示和调试: 以上策略也会导致直接访问h5页面(无有效api_token)时, 无法访问。因此可采取后端提供一个demo演示接口，重定向到一个h5地址，并附带后端
+生成的api_token即可，这个api_token是通过内置的demo_client生成。
+> 这个demo演示接口可以通过口令简单校验。
+
 ### 关于会话的持久化
 通过client_id + user_id确定用户。因此, 需要对数据库表做如下调整:
-1. 新增session表: id, client_id, user_id, mode, session_name, param
-2. 调整chat_history表: 增加字段(session_id, docs, message_html), id值采用前端提供的值
+1. 新增chat_session表: id, client_id, user_id, mode, session_name, param
+2. 调整chat_history表: 增加字段(session_id, docs), id值采用前端提供的值

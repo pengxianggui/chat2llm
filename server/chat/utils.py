@@ -1,7 +1,10 @@
+import json
+from json import JSONEncoder
+
 from pydantic import BaseModel, Field
 from langchain.prompts.chat import ChatMessagePromptTemplate
 from configs import logger, log_verbose
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Optional
 
 
 class History(BaseModel):
@@ -43,3 +46,43 @@ class History(BaseModel):
             h = cls(**h)
 
         return h
+
+
+class SessionParam(BaseModel):
+    model_name: str = Field(default="zhipu-api")
+    query: Optional[str] = Field(default="")
+    stream: Optional[bool] = Field(default=True)
+    temperature: Optional[float] = Field(default=0.7)
+    max_tokens: Optional[int] = Field(default=2000)
+    prompt_name: Optional[str] = Field(default="default")
+    history_count: Optional[int] = Field(default=5)
+    knowledge_base_name: Optional[str] = Field(default="")
+    top_k: Optional[int] = Field(default=3)
+    score_threshold: Optional[int] = Field(default=1)
+    split_result: Optional[bool] = Field(default=False)
+#
+#     def __iter__(self):
+#         yield from {
+#             'query': self.query,
+#             'model_name': self.model_name,
+#             'stream': self.model_name,
+#             'temperature': self.temperature,
+#             'max_tokens': self.max_tokens,
+#             'prompt_name': self.prompt_name,
+#             'history_count': self.history_count,
+#             'knowledge_base_name': self.knowledge_base_name,
+#             'top_k': self.top_k,
+#             'score_threshold': self.score_threshold,
+#             'split_result': self.split_result
+#         }.items()
+#
+#     def __str__(self):
+#         return json.dumps(dict(self), ensure_ascii=False)
+#
+#     def __repr__(self):
+#         return self.__str__()
+#
+#
+# class MyEncoder(JSONEncoder):
+#     def default(self, obj):
+#         return obj.__dict__

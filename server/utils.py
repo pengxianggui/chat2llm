@@ -1,18 +1,20 @@
-import pydantic
-from pydantic import BaseModel
-from typing import List
-from fastapi import FastAPI
-from pathlib import Path
 import asyncio
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from typing import List
+from typing import Literal, Optional, Callable, Generator, Dict, Any, Awaitable, Union
+
+import httpx
+import pydantic
+from fastapi import FastAPI
+from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI, AzureOpenAI, Anthropic
+from pydantic import BaseModel
+
 from configs import (LLM_MODELS, LLM_DEVICE, EMBEDDING_DEVICE,
                      MODEL_PATH, MODEL_ROOT_PATH, ONLINE_LLM_MODEL, logger, log_verbose,
                      FSCHAT_MODEL_WORKERS, HTTPX_DEFAULT_TIMEOUT)
-import os
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from langchain.chat_models import ChatOpenAI, AzureChatOpenAI, ChatAnthropic
-from langchain.llms import OpenAI, AzureOpenAI, Anthropic
-import httpx
-from typing import Literal, Optional, Callable, Generator, Dict, Any, Awaitable, Union
 
 
 async def wrap_done(fn: Awaitable, event: asyncio.Event):
@@ -645,25 +647,6 @@ def get_server_configs() -> Dict:
     '''
     获取configs中的原始配置项，供前端使用
     '''
-    from configs.kb_config import (
-        DEFAULT_KNOWLEDGE_BASE,
-        DEFAULT_SEARCH_ENGINE,
-        DEFAULT_VS_TYPE,
-        CHUNK_SIZE,
-        OVERLAP_SIZE,
-        SCORE_THRESHOLD,
-        VECTOR_SEARCH_TOP_K,
-        SEARCH_ENGINE_TOP_K,
-        ZH_TITLE_ENHANCE,
-        text_splitter_dict,
-        TEXT_SPLITTER_NAME,
-    )
-    from configs.model_config import (
-        LLM_MODELS,
-        HISTORY_LEN,
-        TEMPERATURE,
-    )
-    from configs.prompt_config import PROMPT_TEMPLATES
 
     _custom = {
         "controller_address": fschat_controller_address(),

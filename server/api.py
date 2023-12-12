@@ -1,6 +1,12 @@
-import nltk
-import sys
 import os
+import sys
+
+import nltk
+
+from server.chat.chat_session import list_session_from_db, save_session_to_db, delete_session_from_db
+from server.chat.history import list_histories
+from server.user_context.client import redirect_h5_demo
+from server.user_context.interceptor import TokenMiddleware
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -50,6 +56,8 @@ def create_app(run_mode: str = None):
             allow_headers=["*"],
         )
     mount_app_routes(app, run_mode=run_mode)
+    app.add_middleware(TokenMiddleware)  # token认证
+
     return app
 
 
@@ -108,6 +116,24 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              summary="切换指定的LLM模型（Model Worker)",
              )(change_llm_model)
 
+    # 会话相关接口
+    app.get("/session/list",
+             tags=["Session Management"],
+             summary="我的会话列表")(list_session_from_db)
+
+    app.post("/session/save",
+             tags=["Session Management"],
+             summary="保存会话")(save_session_to_db)
+
+    app.post("/session/delete",
+             tags=["Session Management"],
+             summary="删除会话")(delete_session_from_db)
+
+    # 聊天历史相关接口
+    app.post('/history/latest',
+            tags=["History Management"],
+            summary="获取指定会话的指定历史记录")(list_histories)
+
     # 服务器相关接口
     app.post("/server/configs",
              tags=["Server State"],
@@ -120,11 +146,12 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              )(list_search_engines)
 
     @app.post("/server/get_prompt_template",
-             tags=["Server State"],
-             summary="获取服务区配置的 prompt 模板")
+              tags=["Server State"],
+              summary="获取服务区配置的 prompt 模板")
     def get_server_prompt_template(
-        type: Literal["llm_chat", "knowledge_base_chat", "search_engine_chat", "agent_chat"]=Body("llm_chat", description="模板类型，可选值：llm_chat，knowledge_base_chat，search_engine_chat，agent_chat"),
-        name: str = Body("default", description="模板名称"),
+            type: Literal["llm_chat", "knowledge_base_chat", "search_engine_chat", "agent_chat"] = Body("llm_chat",
+                                                                                                        description="模板类型，可选值：llm_chat，knowledge_base_chat，search_engine_chat，agent_chat"),
+            name: str = Body("default", description="模板名称"),
     ) -> str:
         return get_prompt_template(type=type, name=name)
 
@@ -135,9 +162,14 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
              )(completion)
 
     app.post("/other/embed_texts",
+             tags=["Other"],
+             summary="将文本向量化，支持本地模型和在线模型",
+             )(embed_texts_endpoint)
+
+    app.get("/h5-demo",
             tags=["Other"],
-            summary="将文本向量化，支持本地模型和在线模型",
-            )(embed_texts_endpoint)
+            summary="重定向到h5 demo页面。不携带token而直接访问h5页面将返回401, 但是通过此接口将重定向的h5页面可正常使用。注意: 仅限演示使用"
+            )(redirect_h5_demo)
 
 
 def mount_knowledge_routes(app: FastAPI):
@@ -145,8 +177,8 @@ def mount_knowledge_routes(app: FastAPI):
     from server.chat.agent_chat import agent_chat
     from server.knowledge_base.kb_api import list_kbs, list_kbs_v2, create_kb, delete_kb
     from server.knowledge_base.kb_doc_api import (list_files, upload_docs, delete_docs,
-                                                update_docs, download_doc, recreate_vector_store,
-                                                search_docs, DocumentWithScore, update_zh_name, update_info)
+                                                  update_docs, download_doc, recreate_vector_store,
+                                                  search_docs, DocumentWithScore, update_zh_name, update_info)
 
     app.post("/chat/knowledge_base_chat",
              tags=["Chat"],
