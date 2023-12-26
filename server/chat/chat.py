@@ -16,7 +16,7 @@ from server.utils import get_prompt_template
 from server.utils import wrap_done, get_ChatOpenAI
 
 
-async def chat(session_id: str = Body(..., min_length=32, max_length=32, description="会话id"),
+async def chat(session_id: str = Body(None, min_length=32, max_length=32, description="会话id"),
                query: str = Body(..., description="用户输入", examples=["恼羞成怒"]),
                history: List[History] = Body([],
                                              description="历史对话",

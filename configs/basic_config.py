@@ -10,6 +10,11 @@ langchain.verbose = False
 # 是否保存聊天记录
 SAVE_CHAT_HISTORY = True
 
+# api访问token有效期
+TOKEN_EXPIRED_HOURS = 2
+# the key of token in header
+API_TOKEN_KEY = 'Api-Token'
+
 # 通常情况下不需要更改以下内容
 
 # 日志格式

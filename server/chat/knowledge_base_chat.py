@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 from server.knowledge_base.kb_doc_api import search_docs
 
 
-async def knowledge_base_chat(session_id: str = Body(..., min_length=32, max_length=32, description="会话id"),
+async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_length=32, description="会话id"),
                               query: str = Body(..., description="用户输入", examples=["你好"]),
                               knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
                               top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),

@@ -31,10 +31,10 @@
 
 
 ## 待办
-- [ ] 用户、终端认证
+- [x] 用户、终端认证
 - [x] 知识库列表接口追加返回描述信息和知识库中文名
 - [ ] 解决对话带有history时, 几轮对话下来会触发报错: [utils.py[line:25] - ERROR: TypeError: Caught exception: object of type 'NoneType' has no len()](https://github.com/chatchat-space/Langchain-Chatchat/issues/2228)
-- [ ] 增加会话等数据的持久化
+- [x] 增加会话等数据的持久化
 
 
 ### 关于认证

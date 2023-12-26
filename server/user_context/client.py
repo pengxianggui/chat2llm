@@ -10,7 +10,7 @@ from server.db.repository import get_client, add_client, get_user, add_user
 # 重定向到h5 demo页面。
 def redirect_h5_demo(secret: str, request: Request):
     if secret != H5_DEMO_SECRET:
-        raise HTTPException(status_code=401, detail=f"Authentication required: secret is wrong!")
+        raise HTTPException(status_code=401, detail=f"Authentication required: 口令错误!")
 
     default_client_id = "0"
     client = get_client(default_client_id)  # 获取默认的client

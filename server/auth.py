@@ -1,4 +1,5 @@
 import base64
+import time
 from ctypes import Array
 from http.client import HTTPException
 
@@ -6,6 +7,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
+from configs import API_TOKEN_KEY
 from server.db.models.client_model import ClientModel
 from server.db.repository import get_client, get_client_secret
 
@@ -17,35 +19,36 @@ def encrypt(client_id, user_id, username):
     if client is None:
         raise HTTPException(status_code=500, detail="client_id not exist: " + client_id)
 
-    encrypt_token = rsa_encrypt(client_id + "|" + user_id + "|" + username, client.client_key)
+    timestamp = time.time()  # 秒级
+    encrypt_token = rsa_encrypt(client_id + "|" + user_id + "|" + username + "|" + str(timestamp), client.client_key)
     a = base64.b64encode(encrypt_token).decode()
     b = base64.b64encode((client_id + "|" + a).encode()).decode()
     return b
 
 
 # 解密token。 1. 先通过base64解密得到client_id和encrypt_token, 再通过client_id找到密钥, 通过密钥RSA解密encrypt_token,
-# 得到client_id、user_id、username
+# 得到client_id、user_id、username、timestamp
 def decrypt(token):
     base64_decoded_token = base64.b64decode(token).decode()
     arr: Array = base64_decoded_token.split("|")
     if len(arr) != 2:
-        raise HTTPException(status_code=401, detail="Authentication required: api_token is invalid!")
+        raise HTTPException(status_code=401, detail=f"Authentication required: {API_TOKEN_KEY}无效!")
 
     client_id = arr[0]
     key, secret, enable = get_client_secret(client_id)
     if key is None:
         raise HTTPException(status_code=401,
-                            detail="Authentication required: api_token is invalid, client_id not exist!")
+                            detail=f"Authentication required: {API_TOKEN_KEY}无效!")
 
     encrypt_token = base64.b64decode(arr[1].encode())
     clear_text = rsa_decrypt(encrypt_token, secret)
     params = clear_text.split("|")
 
-    if len(params) != 3:
+    if len(params) != 4:
         raise HTTPException(status_code=401,
-                            detail="Authentication required: api_token is invalid, invalid params!")
+                            detail=f"Authentication required: {API_TOKEN_KEY}无效!")
 
-    return params[0], params[1], params[2]
+    return params[0], params[1], params[2], float(params[3])
 
 
 # 加密。传入明文和公钥，返回加密密文
