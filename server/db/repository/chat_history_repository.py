@@ -62,6 +62,7 @@ def get_chat_history_by_id(session, chat_history_id) -> ChatHistoryModel:
     查询聊天记录
     """
     ch = session.query(ChatHistoryModel).filter_by(id=chat_history_id).first()
+    session.expunge(ch)  # 会话关闭后保持ch值有效
     return ch
 
 
@@ -92,7 +93,7 @@ def list_histories_form_db(session, session_id, chat_history_id, num):
     else:
         # 获取指定chat_history_id前最新的num条记录
         chat: ChatHistoryModel = get_chat_history_by_id(chat_history_id)
-        histories = session.query(ChatHistoryModel).filter_by(ChatHistoryModel.create_time < chat.create_time).order_by(
+        histories = session.query(ChatHistoryModel).filter(ChatHistoryModel.create_time > chat.create_time).order_by(
             desc(ChatHistoryModel.create_time)).limit(num).all()
 
     if len(histories) > 0:
