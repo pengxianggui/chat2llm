@@ -19,6 +19,7 @@ from server.knowledge_base.kb_doc_api import search_docs
 
 
 async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_length=32, description="会话id"),
+                              chat_history_id: str = Body(None, description="若有值表示是基于此对话记录重新生成。此时提问不入库，回答做更新"),
                               query: str = Body(..., description="用户输入", examples=["你好"]),
                               knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
                               top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
@@ -49,6 +50,7 @@ async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_le
     history = [History.from_data(h) for h in history]
 
     async def knowledge_base_chat_iterator(query: str,
+                                           chat_history_id: str,
                                            top_k: int,
                                            history: Optional[List[History]],
                                            model_name: str = LLM_MODELS[0],
@@ -93,8 +95,9 @@ async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_le
             source_documents.append(f"""<span style='color:red'>未找到相关文档,该回答为大模型自身能力解答！</span>""")
 
         answer = ""
-        # 持久化对话记录
-        chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="knowledge_base_chat", query=query)
+        first_answer = chat_history_id is None  # 首次回答
+        if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
+            chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="knowledge_base_chat", query=query)
 
         if stream:
             async for token in callback.aiter():
@@ -114,6 +117,7 @@ async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_le
         await task
 
     return StreamingResponse(knowledge_base_chat_iterator(query=query,
+                                                          chat_history_id=chat_history_id,
                                                           top_k=top_k,
                                                           history=history,
                                                           model_name=model_name,

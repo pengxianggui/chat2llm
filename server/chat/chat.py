@@ -17,6 +17,7 @@ from server.utils import wrap_done, get_ChatOpenAI
 
 
 async def chat(session_id: str = Body(None, min_length=32, max_length=32, description="会话id"),
+               chat_history_id: str = Body(None, description="若有值表示是基于此对话记录重新生成。此时提问不入库，回答做更新"),
                query: str = Body(..., description="用户输入", examples=["恼羞成怒"]),
                history: List[History] = Body([],
                                              description="历史对话",
@@ -29,11 +30,12 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
                temperature: float = Body(TEMPERATURE, description="LLM 采样温度", ge=0.0, le=1.0),
                max_tokens: Optional[int] = Body(None, description="限制LLM生成Token数量，默认None代表模型最大值"),
                # top_p: float = Body(TOP_P, description="LLM 核采样。勿与temperature同时设置", gt=0.0, lt=1.0),
-               prompt_name: str = Body("default", description="使用的prompt模板名称(在configs/prompt_config.py中配置)")
+               prompt_name: str = Body("default", description="使用的prompt模板名称(在configs/prompt_config.py中配置)"),
                ):
     history = [History.from_data(h) for h in history]
 
     async def chat_iterator(query: str,
+                            chat_history_id: str,
                             history: List[History] = [],
                             model_name: str = LLM_MODELS[0],
                             prompt_name: str = prompt_name,
@@ -59,7 +61,10 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
         )
 
         answer = ""
-        chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query)
+
+        first_answer = chat_history_id is None  # 首次回答
+        if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
+            chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query)
 
         if stream:
             async for token in callback.aiter():
@@ -81,6 +86,7 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
         await task
 
     return StreamingResponse(chat_iterator(query=query,
+                                           chat_history_id=chat_history_id,
                                            history=history,
                                            model_name=model_name,
                                            prompt_name=prompt_name),
