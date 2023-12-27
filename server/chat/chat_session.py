@@ -1,5 +1,4 @@
 from http.client import HTTPException
-from typing import Any
 
 from fastapi import Depends, Body
 

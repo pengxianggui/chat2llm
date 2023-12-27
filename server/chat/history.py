@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import Body, Depends
 
 from server.db.repository import list_histories_form_db
