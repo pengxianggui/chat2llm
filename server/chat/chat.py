@@ -17,7 +17,8 @@ from server.utils import wrap_done, get_ChatOpenAI
 
 
 async def chat(session_id: str = Body(None, min_length=32, max_length=32, description="会话id"),
-               chat_history_id: str = Body(None, description="若有值表示是基于此对话记录重新生成。此时提问不入库，回答做更新"),
+               chat_history_id: str = Body(None,
+                                           description="若有值表示是基于此对话记录重新生成。此时提问不入库，回答做更新"),
                query: str = Body(..., description="用户输入", examples=["恼羞成怒"]),
                history: List[History] = Body([],
                                              description="历史对话",
@@ -54,34 +55,38 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
             [i.to_msg_template() for i in history] + [input_msg])
         chain = LLMChain(prompt=chat_prompt, llm=model)
 
-        # Begin a task that runs in the background.
-        task = asyncio.create_task(wrap_done(
-            chain.acall({"input": query}),
-            callback.done),
-        )
-
         answer = ""
+        try:
+            first_answer = chat_history_id is None  # 首次回答
+            if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
+                chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query)
 
-        first_answer = chat_history_id is None  # 首次回答
-        if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
-            chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query)
+            # Begin a task that runs in the background.
+            task = asyncio.create_task(wrap_done(
+                chain.acall({"input": query}),
+                callback.done),
+            )
 
-        if stream:
-            async for token in callback.aiter():
-                answer += token
-                # Use server-sent-events to stream the response
+            if stream:
+                async for token in callback.aiter():
+                    answer += token
+                    # Use server-sent-events to stream the response
+                    yield json.dumps(
+                        {"text": token, "chat_history_id": chat_history_id},
+                        ensure_ascii=False)
+            else:
+                async for token in callback.aiter():
+                    answer += token
                 yield json.dumps(
-                    {"text": token, "chat_history_id": chat_history_id},
+                    {"text": answer, "chat_history_id": chat_history_id},
                     ensure_ascii=False)
-        else:
-            async for token in callback.aiter():
-                answer += token
-            yield json.dumps(
-                {"text": answer, "chat_history_id": chat_history_id},
-                ensure_ascii=False)
 
-        if SAVE_CHAT_HISTORY and len(chat_history_id) > 0:
-            update_chat_history(chat_history_id, response=answer)
+        except Exception:
+            answer = '抱歉, 请换个问法，我可能没听清.'
+            yield json.dumps({"text": answer, "chat_history_id": chat_history_id}, ensure_ascii=False)
+        finally:
+            if SAVE_CHAT_HISTORY and len(chat_history_id) > 0:
+                update_chat_history(chat_history_id, response=answer)
 
         await task
 

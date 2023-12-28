@@ -19,7 +19,8 @@ from server.knowledge_base.kb_doc_api import search_docs
 
 
 async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_length=32, description="会话id"),
-                              chat_history_id: str = Body(None, description="若有值表示是基于此对话记录重新生成。此时提问不入库，回答做更新"),
+                              chat_history_id: str = Body(None,
+                                                          description="若有值表示是基于此对话记录重新生成。此时提问不入库，回答做更新"),
                               query: str = Body(..., description="用户输入", examples=["你好"]),
                               knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
                               top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
@@ -75,45 +76,52 @@ async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_le
 
         chain = LLMChain(prompt=chat_prompt, llm=model)
 
-        # Begin a task that runs in the background.
-        task = asyncio.create_task(wrap_done(
-            chain.acall({"context": context, "question": query}),
-            callback.done),
-        )
-
-        source_documents = []
-        doc_path = get_doc_path(knowledge_base_name)
-        for inum, doc in enumerate(docs):
-            filename = Path(doc.metadata["source"]).resolve().relative_to(doc_path)
-            parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
-            base_url = request.base_url
-            url = f"{base_url}knowledge_base/download_doc?" + parameters
-            text = f"""出处 [{inum + 1}] [{filename}]({url}) \n\n{doc.page_content}\n\n"""
-            source_documents.append(text)
-
-        if len(source_documents) == 0:  # 没有找到相关文档
-            source_documents.append(f"""<span style='color:red'>未找到相关文档,该回答为大模型自身能力解答！</span>""")
-
         answer = ""
-        first_answer = chat_history_id is None  # 首次回答
-        if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
-            chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="knowledge_base_chat", query=query)
+        try:
+            first_answer = chat_history_id is None  # 首次回答
+            if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
+                chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="knowledge_base_chat",
+                                                         query=query)
 
-        if stream:
-            async for token in callback.aiter():
-                answer += token
-                # Use server-sent-events to stream the response
-                yield json.dumps({"answer": token}, ensure_ascii=False)
-            yield json.dumps({"docs": source_documents}, ensure_ascii=False)
-        else:
-            async for token in callback.aiter():
-                answer += token
-            yield json.dumps({"answer": answer,
-                              "docs": source_documents},
-                             ensure_ascii=False)
+            # Begin a task that runs in the background.
+            task = asyncio.create_task(wrap_done(
+                chain.acall({"context": context, "question": query}),
+                callback.done),
+            )
 
-        if SAVE_CHAT_HISTORY and len(chat_history_id) > 0:
-            update_chat_history(chat_history_id, response=answer, docs=source_documents)
+            source_documents = []
+            doc_path = get_doc_path(knowledge_base_name)
+            for inum, doc in enumerate(docs):
+                filename = Path(doc.metadata["source"]).resolve().relative_to(doc_path)
+                parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
+                base_url = request.base_url
+                url = f"{base_url}knowledge_base/download_doc?" + parameters
+                text = f"""出处 [{inum + 1}] [{filename}]({url}) \n\n{doc.page_content}\n\n"""
+                source_documents.append(text)
+
+            if len(source_documents) == 0:  # 没有找到相关文档
+                source_documents.append(
+                    f"""<span style='color:red'>未找到相关文档,该回答为大模型自身能力解答！</span>""")
+
+            if stream:
+                async for token in callback.aiter():
+                    answer += token
+                    # Use server-sent-events to stream the response
+                    yield json.dumps({"answer": token}, ensure_ascii=False)
+                yield json.dumps({"docs": source_documents}, ensure_ascii=False)
+            else:
+                async for token in callback.aiter():
+                    answer += token
+                yield json.dumps({"answer": answer,
+                                  "docs": source_documents},
+                                 ensure_ascii=False)
+        except Exception:
+            answer = '抱歉, 请换个问法，我可能没听清.'
+            yield json.dumps({"text": answer, "chat_history_id": chat_history_id}, ensure_ascii=False)
+        finally:
+            if SAVE_CHAT_HISTORY and len(chat_history_id) > 0:
+                update_chat_history(chat_history_id, response=answer, docs=source_documents)
+
         await task
 
     return StreamingResponse(knowledge_base_chat_iterator(query=query,
