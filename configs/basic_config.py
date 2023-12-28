@@ -11,7 +11,7 @@ langchain.verbose = False
 SAVE_CHAT_HISTORY = True
 
 # api访问token有效期
-TOKEN_EXPIRED_HOURS = 2
+TOKEN_EXPIRED_HOURS = 8
 # the key of token in header
 API_TOKEN_KEY = 'Api-Token'
 
