@@ -109,3 +109,14 @@ def list_histories_form_db(session, session_id, chat_history_id, num):
             })
 
     return data
+
+
+# 删除单个会话关联的对话记录
+@with_session
+def delete_history_by_session(session, session_id):
+    session.query(ChatHistoryModel).filter_by(session_id=session_id).delete()
+
+
+# 删除多个会话关联的对话记录
+def delete_history_by_sessions(session, session_ids):
+    session.query(ChatHistoryModel).fillter(ChatHistoryModel.session_id.in_(session_ids)).delete()

@@ -45,6 +45,10 @@ def delete_session(session, session_id):
     return True
 
 
+def delete_sessions(session, session_ids):
+    session.query(ChatSessionModel).filter(ChatSessionModel.id.in_(session_ids)).delete()
+
+
 @with_session
 def get_session(session, session_id):
     s = session.query(ChatSessionModel).filter_by(id=session_id).first()
@@ -52,3 +56,16 @@ def get_session(session, session_id):
         return None
     return ChatSessionModel(id=s.id, client_id=s.client_id, user_id=s.user_id, mode=s.mode,
                             session_name=s.session_name, param=s.param, create_time=s.create_time)
+
+
+def get_sessions(session, session_ids):
+    sessions = session.query(ChatSessionModel).filter(ChatSessionModel.id.in_(session_ids)).all()
+    if sessions is None or len(sessions) == 0:
+        return []
+
+    data = []
+    for s in sessions:
+        session.expunge(s)
+        data.append(s)
+    return data
+
