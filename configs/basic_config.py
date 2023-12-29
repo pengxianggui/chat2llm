@@ -14,6 +14,8 @@ SAVE_CHAT_HISTORY = True
 TOKEN_EXPIRED_HOURS = 8
 # the key of token in header
 API_TOKEN_KEY = 'Api-Token'
+# h5的开放地址
+H5_ADDRESS = 'http://127.0.0.1:8080'
 
 # 通常情况下不需要更改以下内容
 

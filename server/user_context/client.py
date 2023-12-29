@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from configs import H5_DEMO_SECRET
+from configs import H5_DEMO_SECRET, H5_ADDRESS
 from server.auth import generate_rsa_keys, encrypt
 from server.db.repository import get_client, add_client, get_user, add_user
 
@@ -24,7 +24,8 @@ def redirect_h5_demo(secret: str, request: Request):
         user = add_user(client.id, ip, ip)
 
     token = encrypt(client.id, user.user_id, user.user_id)
-    return RedirectResponse(url="http://127.0.0.1:8080?token=" + token)  # TODO 地址可配置
+    return RedirectResponse(url=H5_ADDRESS + "?token=" + token)
+
 
 
 
