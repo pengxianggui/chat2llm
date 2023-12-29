@@ -10,6 +10,13 @@ langchain.verbose = False
 # 是否保存聊天记录
 SAVE_CHAT_HISTORY = True
 
+# api访问token有效期
+TOKEN_EXPIRED_HOURS = 8
+# the key of token in header
+API_TOKEN_KEY = 'Api-Token'
+# h5的开放地址
+H5_ADDRESS = 'http://127.0.0.1:8080'
+
 # 通常情况下不需要更改以下内容
 
 # 日志格式

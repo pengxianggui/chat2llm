@@ -9,6 +9,7 @@ import json
 engine = create_engine(
     SQLALCHEMY_DATABASE_URI,
     json_serializer=lambda obj: json.dumps(obj, ensure_ascii=False),
+    echo=True
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
