@@ -17,6 +17,5 @@ def get_user(session, client_id, user_id):
     user = session.query(UserModel).filter_by(client_id=client_id, user_id=user_id).first()
     if user is None:
         return None
-
-    return UserModel(user_id=user.user_id, client_id=user.client_id, username=user.username, enable=user.enable,
-                     create_time=user.create_time)
+    session.expunge(user)
+    return user

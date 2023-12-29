@@ -3,8 +3,7 @@ import sys
 
 import nltk
 
-from server.api_extend import mount_custom_knowledge_routes, mount_custom_other_routes, mount_custom_session_routes, \
-    mount_custom_chat_history_routes, mount_custom_recommend_routes
+from server.api_extend import mount_custom_routes
 from server.user_context.interceptor import TokenMiddleware
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -225,15 +224,6 @@ def mount_knowledge_routes(app: FastAPI):
              tags=["Knowledge Base Management"],
              summary="根据content中文档重建向量库，流式输出处理进度。"
              )(recreate_vector_store)
-
-
-# 挂载自定义的路由接口
-def mount_custom_routes(app: FastAPI):
-    mount_custom_knowledge_routes(app)
-    mount_custom_other_routes(app)
-    mount_custom_session_routes(app)
-    mount_custom_chat_history_routes(app)
-    mount_custom_recommend_routes(app)
 
 
 def run_api(host, port, **kwargs):

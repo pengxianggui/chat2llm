@@ -8,12 +8,11 @@ from server.db.models.user_model import UserModel
 from server.db.repository import list_sessions, save_session, get_session, delete_session, get_sessions, \
     delete_sessions, delete_history_by_session, delete_history_by_sessions
 from server.user_context.interceptor import get_current_user
-from server.user_context.user_model import User
 from server.utils import BaseResponse
 
 
 # 我的会话列表
-def list_session_from_db(user: User = Depends(get_current_user)):
+def list_session_from_db(user: UserModel = Depends(get_current_user)):
     return BaseResponse(data=list_sessions(client_id=user.client_id, user_id=user.user_id))
 
 

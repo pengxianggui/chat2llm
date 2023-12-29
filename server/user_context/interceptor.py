@@ -1,5 +1,4 @@
 import time
-from binascii import Error
 
 from fastapi import Request, HTTPException, Security
 from fastapi.security import APIKeyHeader
@@ -9,7 +8,6 @@ from starlette.responses import Response
 from configs import TOKEN_EXPIRED_HOURS, API_TOKEN_KEY
 from server.auth import decrypt
 from server.db.repository import get_user, add_user
-from server.user_context.user_model import User
 
 api_token_header = APIKeyHeader(name=API_TOKEN_KEY, auto_error=False)
 
@@ -37,8 +35,7 @@ class TokenMiddleware(BaseHTTPMiddleware):
             if user is None:
                 user = add_user(client_id, user_id, username)
 
-            request.state.user = User(client_id=user.client_id, user_id=user.user_id, username=user.username,
-                                      enable=user.enable)
+            request.state.user = user
         except Exception as e:
             return Response(status_code=401, content=f"Authentication required: {API_TOKEN_KEY}无效!")
 

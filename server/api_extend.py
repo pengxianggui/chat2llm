@@ -5,8 +5,27 @@ from server.chat.history import list_histories
 from server.knowledge_base.kb_api import list_kbs_v2
 from server.knowledge_base.kb_doc_api import update_zh_name
 from server.question.question import list_recommend_question
+from server.user.user import get_user_info
 from server.user_context.client import redirect_h5_demo
 from server.utils import BaseResponse
+
+
+# 挂载自定义的路由接口
+def mount_custom_routes(app: FastAPI):
+    mount_custom_user_routes(app)
+    mount_custom_knowledge_routes(app)
+    mount_custom_other_routes(app)
+    mount_custom_session_routes(app)
+    mount_custom_chat_history_routes(app)
+    mount_custom_recommend_routes(app)
+
+
+# 挂载用户相关接口
+def mount_custom_user_routes(app: FastAPI):
+    app.get('/user/info',
+            tags=["User Management"],
+            response_model=BaseResponse,
+            summary="获取用户信息")(get_user_info)
 
 
 # 挂载自定义的知识库相关的路由接口
