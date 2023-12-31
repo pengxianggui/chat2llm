@@ -137,7 +137,7 @@ MODEL_PATH = {
         "text2vec-bge-large-chinese": "shibing624/text2vec-bge-large-chinese",
         "m3e-small": "moka-ai/m3e-small",
         # "m3e-base": "moka-ai/m3e-base",
-	    "m3e-base": "/home/linkcrm/huggingface_model/m3e-base",
+	    "m3e-base": "/root/chat2llm/.huggingface_model/m3e-base",
         "m3e-large": "moka-ai/m3e-large",
         "bge-small-zh": "BAAI/bge-small-zh",
         "bge-base-zh": "BAAI/bge-base-zh",

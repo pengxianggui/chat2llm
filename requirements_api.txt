@@ -1,6 +1,7 @@
-# API requirements
+﻿# API requirements
 
-langchain>=0.0.329 # 推荐使用最新的Langchain
+# langchain>=0.0.329 # 推荐使用最新的Langchain
+langchain==0.0.335 # 固定
 langchain-experimental>=0.0.30
 fschat[model_worker]==0.2.32
 xformers>=0.0.22.post4

@@ -1,0 +1,10 @@
+.git/
+.github/
+.huggingface_model/
+.site-packages/
+docs/
+knowledge_base/
+logs/
+tests/
+venv/
+*.md
