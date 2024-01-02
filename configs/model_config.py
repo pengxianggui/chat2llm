@@ -37,19 +37,27 @@ MAX_TOKENS = None
 TEMPERATURE = 0.7
 # TOP_P = 0.95 # ChatOpenAI暂不支持该参数
 
+
+zhipuApiKey = os.environ.get("zhipu-api.api_key")
+openaiApiKey = os.environ.get("openai-api.api_key")
+xinghuoApiAppId = os.environ.get("xinghuo-api.api_appid")
+xinghuoApiAppKey = os.environ.get("xinghuo-api.api_key")
+xinghuoApiAppSecret = os.environ.get("xinghuo-api.api_secret")
+qwenApiKey = os.environ.get("qwen-api.api_key")
+
 ONLINE_LLM_MODEL = {
     # 线上模型。请在server_config中为每个在线API设置不同的端口
 
     "openai-api": {
         "model_name": "gpt-35-turbo",
         "api_base_url": "https://api.openai.com/v1",
-        "api_key": "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",
-        "openai_proxy": "http://127.0.0.1:7890",
+        "api_key": openaiApiKey,
+        "openai_proxy": "http://127.0.0.1:7890",  # 需要代理
     },
 
     # 具体注册及api key获取请前往 http://open.bigmodel.cn
     "zhipu-api": {
-        "api_key": "22fef99e7c16b98cb5b06ef453b37285.ZLn95muEsfEJDgzV",
+        "api_key": zhipuApiKey,
         "version": "chatglm_turbo",  # 可选包括 "chatglm_turbo"
         "provider": "ChatGLMWorker",
     },

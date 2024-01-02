@@ -1,1 +1,44 @@
-# TODO chat2llm-server、chat2llm-h5
+version: "3.8"
+
+services:
+  chat2llm-server:
+    image: pengxg/chat2llm-server:latest
+    container_name: chat2llm-server
+    restart: always
+    ports:
+      - "20000:20000"
+      - "7861:7861"
+      - "8501:8501"
+    volumes:
+#      - /root/chat2llm/chat2llm-server/.site-packages:/app/.site-packages
+      - /root/chat2llm/chat2llm-server/.huggingface_model:/app/.huggingface_model
+      - /root/chat2llm/chat2llm-server/knowledge_base:/app/knowledge_base
+      - /root/chat2llm/chat2llm-server/configs:/app/configs
+    environment:
+      # 这里提供常用模型的apiKey配置项。例如可选: zhipu-api、openai-api、xinghuo-api、qwen-api。项目中启用了哪个就填哪个对应的配置项
+      - zhipu-api.api_key=
+      - openai-api.api_key=
+      - xinghuo-api.api_appid=
+      - xinghuo-api.api_key=
+      - xinghuo-api.api_secret=
+      - qwen-api.api_key=
+    networks:
+      - chat2llm
+
+  chat2llm-h5:
+    image: pengxg/chat2llm-h5:latest
+    container_name: chat2llm-h5
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /root/chat2llm/chat2llm-h5/nginx/config:/etc/nginx
+      - /root/chat2llm/chat2llm-h5/nginx/log:/var/log/nginx
+      - /root/chat2llm/chat2llm-h5/dist:/app/dist
+    networks:
+      - chat2llm
+
+networks:
+  chat2llm:
+    driver: bridge

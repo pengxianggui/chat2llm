@@ -1,15 +1,19 @@
 #!/bin/bash
 
-cd /root/chat2llm
+cd /app
 echo "current dir: $(pwd)"
 
-site_packages="/usr/local/python3.10.12/lib/python3.10/site-packages"
-# 如果site_packages是空目录，则安装依赖
-if [ "$(ls -A $site_packages)" = "" ]; then
-  install_cmd="pip3 install -r ./requirements.txt -r ./requirements_api.txt -r ./requirements_lite.txt"
-  echo "execute: $install_cmd"
-  eval "$install_cmd"
-fi
+#site_packages="/app/.site-packages"
+## 如果site_packages是空目录，则安装依赖
+#if [ "$(ls -A $site_packages)" = "" ]; then
+#  install_cmd="pip3 install -r ./requirements.txt -r ./requirements_api.txt -r ./requirements_lite.txt --target=${site_packages}"
+#  echo "execute: $install_cmd"
+#  eval "$install_cmd"
+#fi
+
+install_cmd="pip3 install -r ./requirements_lite.txt"
+echo "execute: $install_cmd"
+eval "$install_cmd"
 
 # 如果knowledge_base为空，表示库未初始化, 则初始化
 if [ "$(ls -A knowledge_base)" = "" ]; then
