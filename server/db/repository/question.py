@@ -1,4 +1,3 @@
-from sqlalchemy import desc, or_
 from sqlalchemy.sql.functions import random
 
 from server.db.models.question_model import QuestionModel
@@ -20,3 +19,18 @@ def list_random_questions(session, kb_name, num):
         session.expunge(q)
         data.append(q)
     return data
+
+
+@with_session
+def save_question(session, question_id, query, kb_name):
+    if id is None:
+        question = QuestionModel(query=query, kb_name=kb_name)
+        session.add(question)
+    else:
+        question = session.query(QuestionModel).filter_by(id=question_id).first()
+        if question is None:
+            return False
+        else:
+            question.query = query
+            question.kb_name = kb_name
+            return True

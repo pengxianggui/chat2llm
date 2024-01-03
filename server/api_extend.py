@@ -4,7 +4,7 @@ from server.chat.chat_session import list_session_from_db, save_session_to_db, d
 from server.chat.history import list_histories
 from server.knowledge_base.kb_api import list_kbs_v2
 from server.knowledge_base.kb_doc_api import update_zh_name
-from server.question.question import list_recommend_question
+from server.question.question import list_recommend_question, save_recommend_question
 from server.user.user import get_user_info
 from server.user_context.client import redirect_h5_demo
 from server.utils import BaseResponse
@@ -76,3 +76,7 @@ def mount_custom_recommend_routes(app: FastAPI):
     app.get('/recommend/question',
             tags=["Recommend Management"],
             summary="获取推荐的问题")(list_recommend_question)
+
+    app.post('/recommend/question',
+             tags=["Recommend Management"],
+             summary="添加推荐的问题")(save_recommend_question)
