@@ -20,9 +20,9 @@ def encrypt(client_id, user_id, username):
         raise HTTPException(status_code=500, detail="client_id not exist: " + client_id)
 
     timestamp = time.time()  # 秒级
-    encrypt_token = rsa_encrypt(client_id + "|" + user_id + "|" + username + "|" + str(timestamp), client.client_key)
+    encrypt_token = rsa_encrypt(str(client_id) + "|" + user_id + "|" + username + "|" + str(timestamp), client.client_key)
     a = base64.b64encode(encrypt_token).decode()
-    b = base64.b64encode((client_id + "|" + a).encode()).decode()
+    b = base64.b64encode((str(client_id) + "|" + a).encode()).decode()
     return b
 
 
