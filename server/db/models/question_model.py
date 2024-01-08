@@ -8,7 +8,7 @@ class QuestionModel(Base):
     聊天记录模型
     """
     __tablename__ = 'question'
-    id = Column(String(32), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True, comment='问题id')
     query = Column(String(200), comment='预设问题内容')
     kb_name = Column(String(50), comment='知识库名(为空则使用llm对话)')
     answer = Column(String(2048), comment='预设答案(此值内容可以取自管理员维护、或者取自最高点赞的AI回答)')

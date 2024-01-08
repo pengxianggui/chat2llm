@@ -62,3 +62,5 @@ metaphor-python
 strsimpy
 markdownify
 cryptography~=41.0.5
+
+mysqlclient=2.2.1

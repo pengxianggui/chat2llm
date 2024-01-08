@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, func, Boolean
+from sqlalchemy import Column, String, DateTime, func, Boolean, Integer
 
 from server.db.base import Base
 
@@ -8,7 +8,7 @@ class ClientModel(Base):
     聊天记录模型
     """
     __tablename__ = 'client'
-    id = Column(String(32), primary_key=True, comment='客户端id')
+    id = Column(Integer, primary_key=True, autoincrement=True, comment='客户端id')
     client_key = Column(String(2048), comment='公钥')
     client_secret = Column(String(2048), comment='密钥')
     description = Column(String(100), comment='描述')

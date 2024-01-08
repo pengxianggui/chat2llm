@@ -10,7 +10,7 @@ def list_recommend_question(kb_name: str = Query(None, description="知识库名
     return BaseResponse(data=list_random_questions(kb_name=kb_name, num=num))
 
 
-def save_recommend_question(question_id: str = Body(None, description="不为空则视为更新"),
+def save_recommend_question(question_id: int = Body(None, description="不为空则视为更新"),
                             query: str = Body(..., description="问题内容"),
                             kb_name: str = Body(None, description="所属知识库, 为空则LLM对话模式")):
     return BaseResponse(data=save_question(id=question_id, query=query, kb_name=kb_name))

@@ -52,3 +52,5 @@ qianfan
 # pymilvus==2.1.3 # requires milvus==2.1.3
 # psycopg2
 # pgvector
+
+mysqlclient=2.2.1
