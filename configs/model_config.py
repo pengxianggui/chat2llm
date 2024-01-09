@@ -4,7 +4,7 @@ import os
 # 可以指定一个绝对路径，统一存放所有的Embedding和LLM模型。
 # 每个模型可以是一个单独的目录，也可以是某个目录下的二级子目录。
 # 如果模型目录名称和 MODEL_PATH 中的 key 或 value 相同，程序会自动检测加载，无需修改 MODEL_PATH 中的路径。
-MODEL_ROOT_PATH = ""
+MODEL_ROOT_PATH = os.environ.get("MODEL_ROOT_PATH", "")
 
 # 选用的 Embedding 名称
 EMBEDDING_MODEL = "m3e-base" # bge-large-zh
@@ -37,13 +37,14 @@ MAX_TOKENS = None
 TEMPERATURE = 0.7
 # TOP_P = 0.95 # ChatOpenAI暂不支持该参数
 
-
-zhipuApiKey = os.environ.get("zhipu-api.api_key")
-openaiApiKey = os.environ.get("openai-api.api_key")
-xinghuoApiAppId = os.environ.get("xinghuo-api.api_appid")
-xinghuoApiAppKey = os.environ.get("xinghuo-api.api_key")
-xinghuoApiAppSecret = os.environ.get("xinghuo-api.api_secret")
-qwenApiKey = os.environ.get("qwen-api.api_key")
+zhipuApiKey = os.environ.get("ZHIPU-API.API_KEY")
+openaiApiKey = os.environ.get("OPENAI-API.API_KEY")
+xinghuoApiAppId = os.environ.get("XINGHUO-API.API_APPID")
+xinghuoApiAppKey = os.environ.get("XINGHUO-API.API_KEY")
+xinghuoApiAppSecret = os.environ.get("XINGHUO-API.API_SECRET")
+qwenApiKey = os.environ.get("QWEN-API.API_KEY")
+qianfanApiKey = os.environ.get("QIANFAN.API_KEY")
+qianfanApiSecret = os.environ.get("QIANFAN.API_SECRET")
 
 ONLINE_LLM_MODEL = {
     # 线上模型。请在server_config中为每个在线API设置不同的端口
@@ -62,7 +63,6 @@ ONLINE_LLM_MODEL = {
         "provider": "ChatGLMWorker",
     },
 
-
     # 具体注册及api key获取请前往 https://api.minimax.chat/
     "minimax-api": {
         "group_id": "",
@@ -71,12 +71,11 @@ ONLINE_LLM_MODEL = {
         "provider": "MiniMaxWorker",
     },
 
-
     # 具体注册及api key获取请前往 https://xinghuo.xfyun.cn/
     "xinghuo-api": {
-        "APPID": "8e3ee85b",
-        "APISecret": "YTliYmFhMzc5NzY0OGRjZTZhZWRhN2E0",
-        "api_key": "417d31b8123e1517e5b1171e6b41b7d7",
+        "APPID": xinghuoApiAppId,
+        "APISecret": xinghuoApiAppSecret,
+        "api_key": xinghuoApiAppKey,
         "version": "v3.0",  # 你使用的讯飞星火大模型版本，可选包括 "v3.0", "v1.5", "v2.0"
         "provider": "XingHuoWorker",
     },
@@ -85,8 +84,8 @@ ONLINE_LLM_MODEL = {
     "qianfan-api": {
         "version": "ERNIE-Bot",  # 注意大小写。当前支持 "ERNIE-Bot" 或 "ERNIE-Bot-turbo"， 更多的见官方文档。
         "version_url": "",  # 也可以不填写version，直接填写在千帆申请模型发布的API地址
-        "api_key": "0mn8wnfLGsjzpFi44LcMq1xj",
-        "secret_key": "jTOcUZuhcxlR4wLvx94xm8rRFtKrRbOZ",
+        "api_key": qianfanApiKey,
+        "secret_key": qianfanApiSecret,
         "provider": "QianFanWorker",
     },
 
@@ -102,7 +101,7 @@ ONLINE_LLM_MODEL = {
     # 阿里云通义千问 API，文档参考 https://help.aliyun.com/zh/dashscope/developer-reference/api-details
     "qwen-api": {
         "version": "qwen-turbo",  # 可选包括 "qwen-turbo", "qwen-plus"
-        "api_key": "",  # 请在阿里云控制台模型服务灵积API-KEY管理页面创建
+        "api_key": qwenApiKey,  # 请在阿里云控制台模型服务灵积API-KEY管理页面创建
         "provider": "QwenWorker",
     },
 
@@ -144,8 +143,7 @@ MODEL_PATH = {
         "text2vec-multilingual": "shibing624/text2vec-base-multilingual",
         "text2vec-bge-large-chinese": "shibing624/text2vec-bge-large-chinese",
         "m3e-small": "moka-ai/m3e-small",
-        # "m3e-base": "moka-ai/m3e-base",
-	    "m3e-base": "/root/chat2llm/.huggingface_model/m3e-base",
+        "m3e-base": "moka-ai/m3e-base",
         "m3e-large": "moka-ai/m3e-large",
         "bge-small-zh": "BAAI/bge-small-zh",
         "bge-base-zh": "BAAI/bge-base-zh",
