@@ -6,7 +6,7 @@ from server.knowledge_base.kb_api import list_kbs_v2
 from server.knowledge_base.kb_doc_api import update_zh_name
 from server.question.question import list_recommend_question, save_recommend_question
 from server.user.user import get_user_info
-from server.user_context.client import redirect_h5_demo
+from server.user_context.sso import ent_wechat_sso, sso_handler
 from server.utils import BaseResponse
 
 
@@ -14,7 +14,7 @@ from server.utils import BaseResponse
 def mount_custom_routes(app: FastAPI):
     mount_custom_user_routes(app)
     mount_custom_knowledge_routes(app)
-    mount_custom_other_routes(app)
+    mount_custom_sso_routes(app)
     mount_custom_session_routes(app)
     mount_custom_chat_history_routes(app)
     mount_custom_recommend_routes(app)
@@ -39,14 +39,6 @@ def mount_custom_knowledge_routes(app: FastAPI):
              response_model=BaseResponse,
              summary="更新知识库中文名"
              )(update_zh_name)
-
-
-# 挂载自定义的其它路由接口
-def mount_custom_other_routes(app: FastAPI):
-    app.get("/h5-demo",
-            tags=["Other"],
-            summary="重定向到h5 demo页面。不携带token而直接访问h5页面将返回401, 但是通过此接口将重定向的h5页面可正常使用。注意: 仅限演示使用"
-            )(redirect_h5_demo)
 
 
 # 挂载自定义会话相关的路由接口
@@ -80,3 +72,16 @@ def mount_custom_recommend_routes(app: FastAPI):
     app.post('/recommend/question',
              tags=["Recommend Management"],
              summary="添加推荐的问题")(save_recommend_question)
+
+
+# 挂载自定义的其它路由接口
+def mount_custom_sso_routes(app: FastAPI):
+    app.get("/sso",
+            tags=["SSO"],
+            summary="单点登录接口. h5访问时单点登录统一入口"
+            )(sso_handler)
+
+    app.get("/ent-wechat-sso",
+            tags=["Other"],
+            summary="企微单点登录回调地址, 提供给企微使用的"
+            )(ent_wechat_sso)
