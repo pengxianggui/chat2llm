@@ -2,7 +2,7 @@ from langchain.utilities.bing_search import BingSearchAPIWrapper
 from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
 from configs import (BING_SEARCH_URL, BING_SUBSCRIPTION_KEY, METAPHOR_API_KEY,
                      LLM_MODELS, SEARCH_ENGINE_TOP_K, TEMPERATURE,
-                     TEXT_SPLITTER_NAME, OVERLAP_SIZE)
+                     TEXT_SPLITTER_NAME, OVERLAP_SIZE, ENABLE_LLM_MODEL)
 from fastapi import Body
 from fastapi.responses import StreamingResponse
 from fastapi.concurrency import run_in_threadpool
@@ -126,7 +126,7 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
                                                                 "content": "虎头虎脑"}]]
                                                             ),
                             stream: bool = Body(False, description="流式输出"),
-                            model_name: str = Body(LLM_MODELS[0], description="LLM 模型名称。"),
+                            model_name: str = Body(ENABLE_LLM_MODEL, description="LLM 模型名称。"),
                             temperature: float = Body(TEMPERATURE, description="LLM 采样温度", ge=0.0, le=1.0),
                             max_tokens: Optional[int] = Body(None, description="限制LLM生成Token数量，默认None代表模型最大值"),
                             prompt_name: str = Body("default",description="使用的prompt模板名称(在configs/prompt_config.py中配置)"),
@@ -144,7 +144,7 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
                                           search_engine_name: str,
                                           top_k: int,
                                           history: Optional[List[History]],
-                                          model_name: str = LLM_MODELS[0],
+                                          model_name: str = ENABLE_LLM_MODEL,
                                           prompt_name: str = prompt_name,
                                           ) -> AsyncIterable[str]:
         callback = AsyncIteratorCallbackHandler()

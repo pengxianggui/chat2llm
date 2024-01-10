@@ -1,6 +1,6 @@
 from fastapi import Body, Request
 from fastapi.responses import StreamingResponse
-from configs import (LLM_MODELS, VECTOR_SEARCH_TOP_K, SCORE_THRESHOLD, TEMPERATURE, SAVE_CHAT_HISTORY)
+from configs import (LLM_MODELS, VECTOR_SEARCH_TOP_K, SCORE_THRESHOLD, TEMPERATURE, SAVE_CHAT_HISTORY, ENABLE_LLM_MODEL)
 from server.db.repository import add_chat_history_to_db, update_chat_history
 from server.utils import wrap_done, get_ChatOpenAI
 from server.utils import BaseResponse, get_prompt_template
@@ -36,7 +36,7 @@ async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_le
                                                                  "content": "虎头虎脑"}]]
                                                             ),
                               stream: bool = Body(False, description="流式输出"),
-                              model_name: str = Body(LLM_MODELS[0], description="LLM 模型名称。"),
+                              model_name: str = Body(ENABLE_LLM_MODEL, description="LLM 模型名称。"),
                               temperature: float = Body(TEMPERATURE, description="LLM 采样温度", ge=0.0, le=1.0),
                               max_tokens: Optional[int] = Body(None,
                                                                description="限制LLM生成Token数量，默认None代表模型最大值"),
@@ -54,7 +54,7 @@ async def knowledge_base_chat(session_id: str = Body(None, min_length=32, max_le
                                            chat_history_id: str,
                                            top_k: int,
                                            history: Optional[List[History]],
-                                           model_name: str = LLM_MODELS[0],
+                                           model_name: str = ENABLE_LLM_MODEL,
                                            prompt_name: str = prompt_name,
                                            ) -> AsyncIterable[str]:
         callback = AsyncIteratorCallbackHandler()

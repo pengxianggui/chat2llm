@@ -9,7 +9,7 @@ from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.chains import LLMChain
 from langchain.prompts.chat import ChatPromptTemplate
 
-from configs import LLM_MODELS, TEMPERATURE, SAVE_CHAT_HISTORY
+from configs import LLM_MODELS, TEMPERATURE, SAVE_CHAT_HISTORY, ENABLE_LLM_MODEL
 from server.chat.utils import History
 from server.db.repository import add_chat_history_to_db, update_chat_history
 from server.utils import get_prompt_template
@@ -27,7 +27,7 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
                                                  {"role": "assistant", "content": "虎头虎脑"}]]
                                              ),
                stream: bool = Body(False, description="流式输出"),
-               model_name: str = Body(LLM_MODELS[0], description="LLM 模型名称。"),
+               model_name: str = Body(ENABLE_LLM_MODEL, description="LLM 模型名称。"),
                temperature: float = Body(TEMPERATURE, description="LLM 采样温度", ge=0.0, le=1.0),
                max_tokens: Optional[int] = Body(None, description="限制LLM生成Token数量，默认None代表模型最大值"),
                # top_p: float = Body(TOP_P, description="LLM 核采样。勿与temperature同时设置", gt=0.0, lt=1.0),
@@ -38,7 +38,7 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
     async def chat_iterator(query: str,
                             chat_history_id: str,
                             history: List[History] = [],
-                            model_name: str = LLM_MODELS[0],
+                            model_name: str = ENABLE_LLM_MODEL,
                             prompt_name: str = prompt_name,
                             ) -> AsyncIterable[str]:
         callback = AsyncIteratorCallbackHandler()

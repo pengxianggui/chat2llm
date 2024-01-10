@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from configs import (LLM_MODELS, LLM_DEVICE, EMBEDDING_DEVICE,
                      MODEL_PATH, MODEL_ROOT_PATH, ONLINE_LLM_MODEL, logger, log_verbose,
-                     FSCHAT_MODEL_WORKERS, HTTPX_DEFAULT_TIMEOUT)
+                     FSCHAT_MODEL_WORKERS, HTTPX_DEFAULT_TIMEOUT, ENABLE_LLM_MODEL)
 
 
 async def wrap_done(fn: Awaitable, event: asyncio.Event):
@@ -432,7 +432,7 @@ def fschat_controller_address() -> str:
     return f"http://{host}:{port}"
 
 
-def fschat_model_worker_address(model_name: str = LLM_MODELS[0]) -> str:
+def fschat_model_worker_address(model_name: str = ENABLE_LLM_MODEL) -> str:
     if model := get_model_worker_config(model_name):  # TODO: depends fastchat
         host = model["host"]
         if host == "0.0.0.0":

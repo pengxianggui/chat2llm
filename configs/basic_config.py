@@ -11,14 +11,14 @@ langchain.verbose = False
 SAVE_CHAT_HISTORY = True
 
 # api访问token有效期
-TOKEN_EXPIRED_HOURS = 8
+TOKEN_EXPIRED_HOURS = os.environ.get("TOKEN_EXPIRED_HOURS", 8)
 # the key of token in header
 API_TOKEN_KEY = 'Api-Token'
 
 # 当前服务端地址
-SERVER_ADDRESS = 'http://127.0.0.1:7861'
+SERVER_ADDRESS = os.environ.get("SERVER_ADDRESS", "http://127.0.0.1:7861")
 # h5的开放地址
-H5_ADDRESS = 'http://127.0.0.1:8080'
+H5_ADDRESS = os.environ.get("H5_ADDRESS", "http://127.0.0.1:8080")
 
 # 企微应用配置
 ENT_WECHAT_AGENTID = os.environ.get("ENT_WECHAT_AGENTID")

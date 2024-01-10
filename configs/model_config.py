@@ -7,7 +7,7 @@ import os
 MODEL_ROOT_PATH = os.environ.get("MODEL_ROOT_PATH", "")
 
 # 选用的 Embedding 名称
-EMBEDDING_MODEL = "m3e-base" # bge-large-zh
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "m3e-base") # bge-large-zh
 
 # Embedding 模型运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
 # EMBEDDING_DEVICE = "auto"
@@ -18,8 +18,9 @@ EMBEDDING_KEYWORD_FILE = "keywords.txt"
 EMBEDDING_MODEL_OUTPUT_PATH = "output"
 
 # 要运行的 LLM 名称，可以包括本地模型和在线模型。
-# 第一个将作为 API 和 WEBUI 的默认模型
 LLM_MODELS = ["zhipu-api", "chatglm2-6b", "openai-api", "xinghuo-api"]
+# 默认启用的模型
+ENABLE_LLM_MODEL = os.environ.get("ENABLE_LLM_MODEL", "zhipu-api")
 
 # AgentLM模型的名称 (可以不指定，指定之后就锁定进入Agent之后的Chain的模型，不指定就是LLM_MODELS[0])
 Agent_MODEL = None

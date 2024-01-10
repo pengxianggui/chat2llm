@@ -1,4 +1,5 @@
 import asyncio
+import configparser
 import multiprocessing as mp
 import os
 import subprocess
@@ -30,7 +31,7 @@ from configs import (
     FSCHAT_MODEL_WORKERS,
     API_SERVER,
     WEBUI_SERVER,
-    HTTPX_DEFAULT_TIMEOUT,
+    HTTPX_DEFAULT_TIMEOUT, ENABLE_LLM_MODEL,
 )
 from server.utils import (fschat_controller_address, fschat_model_worker_address,
                           fschat_openai_api_address, set_httpx_config, get_httpx_client,
@@ -359,7 +360,7 @@ def run_controller(log_level: str = "INFO", started_event: mp.Event = None):
 
 
 def run_model_worker(
-        model_name: str = LLM_MODELS[0],
+        model_name: str = ENABLE_LLM_MODEL,
         controller_address: str = "",
         log_level: str = "INFO",
         q: mp.Queue = None,
@@ -862,6 +863,20 @@ async def start_main_server():
             for p in processes.values():
                 logger.info("Process status: %s", p)
 
+
+# 设置环境变量
+def set_env():
+    config = configparser.ConfigParser()
+    # if '--config' in sys.argv:
+    #     config_file = sys.argv[sys.argv.index('--config') + 1]
+    config.read('config.ini', encoding='utf-8')
+    # 将配置项设置为环境变量
+    for section in config.sections():
+        for key in config.options(section):
+            os.environ[key] = config.get(section, key)
+    # else:
+    #     print("No config file specified! use '--config config.ini' to appoint your config")
+
 if __name__ == "__main__":
 
     if sys.version_info < (3, 10):
@@ -873,6 +888,8 @@ if __name__ == "__main__":
             loop = asyncio.new_event_loop()
 
         asyncio.set_event_loop(loop)
+
+    set_env()
     # 同步调用协程代码
     loop.run_until_complete(start_main_server())
 

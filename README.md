@@ -35,9 +35,10 @@
 - [x] 知识库列表接口追加返回描述信息和知识库中文名
 - [ ] 解决对话带有history时, 几轮对话下来会触发报错: [utils.py[line:25] - ERROR: TypeError: Caught exception: object of type 'NoneType' has no len()](https://github.com/chatchat-space/Langchain-Chatchat/issues/2228)
 - [x] 增加会话等数据的持久化
+- [ ] 命令行支持 --config config.ini 指定配置文件完整路径
 
 
-### 关于认证
+## 关于认证
 由于不打算提供自己的用户体系，外部来源的用户体系又不止一个。因此采用RSA非对称加密方式认证和识别客户端和用户。即通过请求头携带`api_token`实现认证。
 
 > 这里阐述下具体逻辑:
@@ -45,7 +46,7 @@
 > 例如h5页面计划嵌入到企微的某个小程序A里, 那么需要在Chat2LLM中为A添加一个client记录，包含的字段有: client_id, client_key, client_secret(公钥和密钥由Chat2LLM server生成)。
 > 小程序A在嵌入h5页面时, url地址参数里携带一个api_token。H5内部的所有请求都会携带api_token, Chat2LLM server 通过api_token识别client。
 > 
-> A如何生成api_token: 根据颁发的公钥client_key, 通过RSA加密字符串: "client_id|user_id|username", 得到A, 然后通过base64加密"client_id|A", 从而生成api_token。
+> A如何生成api_token: 根据颁发的公钥client_key, 通过RSA加密字符串: "client_id|user_id|username|timestamp", 得到A, 然后通过base64加密"client_id|A", 从而生成api_token。
 > 
 > Chat2LLM Server如何解密api_token: 首先通过base64解密得到client_id和A, 再通过client_id找到对应的私钥，通过私钥client_secret解密A, 从而得到当前请求的client_id、user_id和username。
 > 顺利解析，并且client_id合法，则放行(若user_id库里不存在，则新增此用户)。否则响应拒绝。
@@ -58,7 +59,11 @@
 生成的api_token即可，这个api_token是通过内置的demo_client生成。
 > 这个demo演示接口可以通过口令简单校验。
 
-### 关于会话的持久化
+## 关于会话的持久化
 通过client_id + user_id确定用户。因此, 需要对数据库表做如下调整:
 1. 新增chat_session表: id, client_id, user_id, mode, session_name, param
 2. 调整chat_history表: 增加字段(session_id, docs), id值采用前端提供的值
+
+
+## 关于部署
+config.ini里有所有的环境变量覆盖配置项，部署时需保证此文件在项目根目录(暂时不支持命令行指定目录)。

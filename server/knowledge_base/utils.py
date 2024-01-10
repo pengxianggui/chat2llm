@@ -8,7 +8,7 @@ from configs import (
     log_verbose,
     text_splitter_dict,
     LLM_MODELS,
-    TEXT_SPLITTER_NAME,
+    TEXT_SPLITTER_NAME, ENABLE_LLM_MODEL,
 )
 import importlib
 from text_splitter import zh_title_enhance as func_zh_title_enhance
@@ -193,7 +193,7 @@ def make_text_splitter(
         splitter_name: str = TEXT_SPLITTER_NAME,
         chunk_size: int = CHUNK_SIZE,
         chunk_overlap: int = OVERLAP_SIZE,
-        llm_model: str = LLM_MODELS[0],
+        llm_model: str = ENABLE_LLM_MODEL,
 ):
     """
     根据参数获取特定的分词器
