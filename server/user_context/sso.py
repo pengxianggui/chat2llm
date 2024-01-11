@@ -6,7 +6,7 @@ from fastapi import Query
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from configs import H5_DEMO_SECRET, H5_ADDRESS, SERVER_ADDRESS, ENT_WECHAT_CORPID
+from configs import H5_DEMO_SECRET, H5_ADDRESS, SERVER_ADDRESS, ENT_WECHAT_CORPID, ENT_WECHAT_AGENTID
 from server.auth import generate_rsa_keys, encrypt
 from server.db.repository import get_client, add_client, get_user, add_user
 from server.third.ent_wechat import get_ent_chat_user
@@ -24,7 +24,8 @@ def sso_handler(client: Union[str, None] = Query(default="0", description="客�
     if client == "1":  # 企微页面
         REDIRECT_URI = parse.quote(SERVER_ADDRESS + "/ent-wechat-sso")
         return RedirectResponse(url=f"https://open.weixin.qq.com/connect/oauth2/authorize?appid={ENT_WECHAT_CORPID}"
-                                    f"&redirect_uri={REDIRECT_URI}&response_type=code&scope=snsapi_privateinfo&state={client}#wechat_redirect")
+                                    f"&redirect_uri={REDIRECT_URI}&response_type=code&scope=snsapi_privateinfo"
+                                    f"&state={client}&agentid={ENT_WECHAT_AGENTID}#wechat_redirect")
 
     return RedirectResponse(url=f"{H5_ADDRESS}/401?message=无效的客户端,无法单点登录,请重新进入")
 
@@ -53,6 +54,7 @@ def redirect_h5_demo(secret: str, request: Request):
 
 # 企微单点回调
 def ent_wechat_sso(code: str, state: str):
+    print(f"receive ent wechat sso callback, code: {code}")
     if code is None or len(code) == 0:
         return RedirectResponse(url=f"{H5_ADDRESS}/401?message=参数错误")
 
@@ -66,6 +68,7 @@ def ent_wechat_sso(code: str, state: str):
         user_id, username = get_ent_chat_user(code)
         user = get_user(client.id, user_id)
         if user is None:
+            print(f"detect current user is newer, add to db..")
             user = add_user(client.id, user_id, username)
         token = encrypt(client.id, user.user_id, user.username)
         return RedirectResponse(url=f"{H5_ADDRESS}/sso?token={token}")
