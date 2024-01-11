@@ -1,3 +1,4 @@
+import os
 from urllib import parse
 from typing import Union
 
@@ -45,7 +46,9 @@ def redirect_h5_demo(secret: str, request: Request):
         user = add_user(client.id, ip, ip)
 
     token = encrypt(client.id, user.user_id, user.user_id)
-    return RedirectResponse(url=f"{H5_ADDRESS}/sso?token={token}")
+    redirect_to = f"{H5_ADDRESS}/sso?token={token}"
+    print(f"redirect to {redirect_to}")
+    return RedirectResponse(url=redirect_to)
 
 
 # 企微单点回调
