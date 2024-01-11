@@ -881,6 +881,7 @@ async def start_main_server():
 # 设置环境变量
 def set_env(config_file):
     config = configparser.ConfigParser()
+    config.optionxform = str # 避免key被转换为小写
     config.read(config_file, encoding='utf-8')
     # 将配置项设置为环境变量
     for section in config.sections():
