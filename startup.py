@@ -650,6 +650,7 @@ async def start_main_server():
         run_mode = "lite"
 
     if args.config:
+        print(f"load config: {args.config}")
         set_env(args.config)
     else:
         print("No config file specified, will be use default config! you can use '--config your_config.ini' to appoint your config file")
