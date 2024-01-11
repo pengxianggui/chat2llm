@@ -885,7 +885,9 @@ def set_env(config_file):
     # 将配置项设置为环境变量
     for section in config.sections():
         for key in config.options(section):
-            os.environ[key] = config.get(section, key)
+            value = config.get(section, key)
+            os.environ[key] = value
+            print(f"set env: {key}={value}")
 
 if __name__ == "__main__":
 
