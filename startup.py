@@ -888,7 +888,6 @@ def set_env(config_file):
         for key in config.options(section):
             value = config.get(section, key)
             os.environ[key] = value
-            print(f"set env: {key}={value}")
 
 if __name__ == "__main__":
 

@@ -28,7 +28,7 @@ class TokenMiddleware(BaseHTTPMiddleware):
                 return Response(status_code=401, content=f"Authentication required: {API_TOKEN_KEY}无效!")
 
             diff_hours = (time.time() - timestamp) / 3600
-            if diff_hours > TOKEN_EXPIRED_HOURS:
+            if diff_hours > float(TOKEN_EXPIRED_HOURS):
                 return Response(status_code=401, content=f"Authentication required: token过期!")
 
             user = get_user(client_id, user_id)
