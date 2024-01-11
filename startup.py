@@ -551,6 +551,13 @@ def parse_args() -> argparse.ArgumentParser:
         help="以Lite模式运行：仅支持在线API的LLM对话、搜索引擎对话",
         dest="lite",
     )
+    parser.add_argument(
+        "-f",
+        "--config",
+        action="store",
+        help="指定ini配置文件路径",
+        dest="config",
+    )
     args = parser.parse_args()
     return args, parser
 
@@ -641,6 +648,12 @@ async def start_main_server():
     if args.lite:
         args.model_worker = False
         run_mode = "lite"
+
+    if args.config:
+        set_env(args.config)
+    else:
+        print("No config file specified, will be use default config! you can use '--config your_config.ini' to appoint your config file")
+        set_env('config.ini')
 
     dump_server_info(args=args)
 
@@ -865,17 +878,13 @@ async def start_main_server():
 
 
 # 设置环境变量
-def set_env():
+def set_env(config_file):
     config = configparser.ConfigParser()
-    # if '--config' in sys.argv:
-    #     config_file = sys.argv[sys.argv.index('--config') + 1]
-    config.read('config.ini', encoding='utf-8')
+    config.read(config_file, encoding='utf-8')
     # 将配置项设置为环境变量
     for section in config.sections():
         for key in config.options(section):
             os.environ[key] = config.get(section, key)
-    # else:
-    #     print("No config file specified! use '--config config.ini' to appoint your config")
 
 if __name__ == "__main__":
 
@@ -889,7 +898,6 @@ if __name__ == "__main__":
 
         asyncio.set_event_loop(loop)
 
-    set_env()
     # 同步调用协程代码
     loop.run_until_complete(start_main_server())
 
