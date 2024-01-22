@@ -7,7 +7,7 @@ from configs import ENT_WECHAT_CORPID, ENT_WECHAT_APPSECRET
 # 根据code获取企微用户信息
 def get_ent_chat_user(code: str):
     data = get_user_info_simple(code)
-    user_id = data['user_id']
+    user_id = data['userid']
     if user_id is None: # 可能是非企业成员, 见: https://developer.work.weixin.qq.com/document/path/91023
         return data['openid'], data['openid']  # 则将openid视为user_id和username
     else:
@@ -48,4 +48,4 @@ def get_user_info_simple(code: str):
         errmsg = data['errmsg']
         raise RuntimeError(errmsg)
     else:
-        return  data
+        return data
