@@ -35,7 +35,8 @@
 - [x] 知识库列表接口追加返回描述信息和知识库中文名
 - [ ] 解决对话带有history时, 几轮对话下来会触发报错: [utils.py[line:25] - ERROR: TypeError: Caught exception: object of type 'NoneType' has no len()](https://github.com/chatchat-space/Langchain-Chatchat/issues/2228)
 - [x] 增加会话等数据的持久化
-- [ ] 命令行支持 --config config.ini 指定配置文件完整路径
+- [x] 命令行支持 --config config.ini 指定配置文件完整路径
+- [ ] server/utils.py里get_model_worker_config方法在启动时会被调用多次, 对话时也会调用， 其中的from configs.model_config import ONLINE_LLM_MODEL，导入后ONLINE_LLM_MODEL字典中从环境变量里取值的字典项有时值会是None。从启动日志里打印的api_token也能看出是None，但后面的值又是正确的。需要找出原因，并解决这个问题。 
 
 
 ## 关于认证
