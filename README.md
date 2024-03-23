@@ -16,6 +16,23 @@
 - python: 3.10.11+, 推荐3.10.12
 - pip: 23.0.1
 
+## 项目准备和启动
+### 依赖安装
+```shell
+pip install -r requirements.txt requirements_api.txt requirements_webui.txt requirements_lite.txt
+```
+
+### 初始化向量库
+```shell
+python init_database.py --recreate-vs
+```
+> 这个步骤只在首次运行时需要。它会在当前工程目录下创建一个知识库目录(knowledge_base), 到时候创建的知识库和上传的文件都会上传到这个目录里，并在其中
+> 向量化。
+
+### 启动(轻量启动)
+```shell
+python startup.py -a --lite
+```
 
 ## 关于工程的一点理解
 > github上的readme和wiki还是比较详细的，这里只是记录一点自己摸索过程的一点心得。

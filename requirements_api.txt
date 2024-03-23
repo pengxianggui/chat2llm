@@ -53,4 +53,4 @@ qianfan
 # psycopg2
 # pgvector
 
-mysqlclient=2.2.1
+mysqlclient==2.2.1
