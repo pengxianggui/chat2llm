@@ -3,13 +3,15 @@ import json
 
 import requests
 
+from configs import AZS_URL, AZS_APP_SECRET
+
 # 爱助手测试env
 # url = "https://ai.enterpriseai.com.cn/api/open-api"
 # api_key = "93e03624046044ba8ea6973dd124fc0f"
 
 # 我们的
-url = "https://ai.marssenger.cn/api/open-api"
-api_key = "ec9df637b3724a7a9d7a2b64eb37f3ba"
+url = AZS_URL
+api_key = AZS_APP_SECRET
 
 # 获取知识库列表，接口文档: https://ai.enterpriseai.com.cn/help/zh/api/openApi%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.html#_2-%E8%8E%B7%E5%8F%96%E7%9F%A5%E8%AF%86%E5%BA%93%E5%88%97%E8%A1%A8
 def list_kbs_from_azs(keyword: str, num: int):
