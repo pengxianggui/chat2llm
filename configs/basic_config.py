@@ -9,8 +9,8 @@ langchain.verbose = False
 
 # 是否启用爱助手LLM代理: 若启用爱助手代理，则LLM功能将走爱助手接口，而不是longchain代理的第三方LLM开放接口。对话、知识库对话以及知识库列表都将走爱助手接口。
 ENABLE_AZS = os.environ.get("ENABLE_AZS", True)
-AZS_URL = os.environ.get("AZS_URL", "https://ai.marssenger.cn/api/open-api")  # 爱助手的接口地址, 若ENABLE_AZS=True时有效
-AZS_APP_SECRET = os.environ.get("AZS_APP_SECRET", "")  # 爱助手的接口认证的appSecret, 若ENABLE_AZS=True时有效
+AZS_URL = os.environ.get("AZS_URL", "https://ai.enterpriseai.com.cn/api/open-api")  # 爱助手的接口地址, 若ENABLE_AZS=True时有效
+AZS_APP_SECRET = os.environ.get("AZS_APP_SECRET", "93e03624046044ba8ea6973dd124fc0f")  # 爱助手的接口认证的appSecret, 若ENABLE_AZS=True时有效
 # 是否保存聊天记录
 SAVE_CHAT_HISTORY = True
 
