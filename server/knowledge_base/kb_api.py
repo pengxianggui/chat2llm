@@ -1,10 +1,12 @@
 import urllib
+
+from server.third.azs_http import list_kbs_from_azs
 from server.utils import BaseResponse, ListResponse
 from server.knowledge_base.utils import validate_kb_name
 from server.knowledge_base.kb_service.base import KBServiceFactory
 from server.db.repository.knowledge_base_repository import list_kbs_from_db, list_kbs_from_db_v2
-from configs import EMBEDDING_MODEL, logger, log_verbose
-from fastapi import Body
+from configs import EMBEDDING_MODEL, logger, log_verbose, ENABLE_AZS
+from fastapi import Body, Query
 
 
 def list_kbs():
@@ -12,8 +14,9 @@ def list_kbs():
     return ListResponse(data=list_kbs_from_db())
 
 
-def list_kbs_v2():
-    return BaseResponse(data=list_kbs_from_db_v2())
+def list_kbs_v2(keyword: str = Query(None, description="过滤关键词"),
+                num: int = Query(None, description="数量")):
+    return BaseResponse(data=list_kbs_from_azs(keyword, num) if ENABLE_AZS else list_kbs_from_db_v2())
 
 
 def create_kb(knowledge_base_name: str = Body(..., examples=["samples"]),

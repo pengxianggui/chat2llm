@@ -54,7 +54,7 @@ def create_app(run_mode: str = None):
             allow_headers=["*"],
         )
     mount_app_routes(app, run_mode=run_mode)
-    mount_custom_routes(app)
+    mount_custom_routes(app) # 挂载自定义接口
     app.add_middleware(TokenMiddleware)  # token认证
     return app
 

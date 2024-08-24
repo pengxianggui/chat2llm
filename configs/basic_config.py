@@ -7,6 +7,8 @@ import langchain
 log_verbose = False
 langchain.verbose = False
 
+# 是否启用爱助手LLM代理: 若启用爱助手代理，则LLM功能将走爱助手接口，而不是longchain代理的第三方LLM开放接口。对话、知识库对话以及知识库列表都将走爱助手接口。
+ENABLE_AZS = os.environ.get("ENABLE_AZS", True)
 # 是否保存聊天记录
 SAVE_CHAT_HISTORY = True
 

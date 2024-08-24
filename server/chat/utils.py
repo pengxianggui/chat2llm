@@ -1,10 +1,7 @@
-import json
-from json import JSONEncoder
-
-from pydantic import BaseModel, Field
-from langchain.prompts.chat import ChatMessagePromptTemplate
-from configs import logger, log_verbose
 from typing import List, Tuple, Dict, Union, Optional
+
+from langchain.prompts.chat import ChatMessagePromptTemplate
+from pydantic import BaseModel, Field
 
 
 class History(BaseModel):
@@ -56,7 +53,7 @@ class SessionParam(BaseModel):
     max_tokens: Optional[int] = Field(default=2000)
     prompt_name: Optional[str] = Field(default="default")
     history_count: Optional[int] = Field(default=5)
-    knowledge_base_name: Optional[str] = Field(default="")
+    knowledge_base_id: Optional[str] = Field(default="")
     top_k: Optional[int] = Field(default=3)
     score_threshold: Optional[int] = Field(default=1)
     split_result: Optional[bool] = Field(default=False)
@@ -70,7 +67,7 @@ class SessionParam(BaseModel):
 #             'max_tokens': self.max_tokens,
 #             'prompt_name': self.prompt_name,
 #             'history_count': self.history_count,
-#             'knowledge_base_name': self.knowledge_base_name,
+#             'knowledge_base_id': self.knowledge_base_id,
 #             'top_k': self.top_k,
 #             'score_threshold': self.score_threshold,
 #             'split_result': self.split_result

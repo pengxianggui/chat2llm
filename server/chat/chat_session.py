@@ -28,7 +28,7 @@ def save_session_to_db(
             "max_tokens": 2000,
             "prompt_name": "default",
             "history_count": 5,
-            "knowledge_base_name": "",
+            "knowledge_base_id": "",
             "top_k": 3,
             "score_threshold": 1,
             "split_result": False

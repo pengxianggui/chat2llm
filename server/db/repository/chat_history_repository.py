@@ -43,6 +43,10 @@ def update_chat_history(session, chat_history_id, response: str = None, docs=[],
         session.add(ch)
         return ch.id
 
+@with_session
+def exist_chat_history_id(session, chat_history_id: str):
+    ch = session.query(ChatHistoryModel).filter_by(id=chat_history_id).first()
+    return ch is not None
 
 @with_session
 def feedback_chat_history_to_db(session, chat_history_id, feedback_score, feedback_reason):

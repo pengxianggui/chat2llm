@@ -53,7 +53,8 @@ python startup.py -a --lite
 - [ ] 解决对话带有history时, 几轮对话下来会触发报错: [utils.py[line:25] - ERROR: TypeError: Caught exception: object of type 'NoneType' has no len()](https://github.com/chatchat-space/Langchain-Chatchat/issues/2228)
 - [x] 增加会话等数据的持久化
 - [x] 命令行支持 --config config.ini 指定配置文件完整路径
-- [ ] server/utils.py里get_model_worker_config方法在启动时会被调用多次, 对话时也会调用， 其中的from configs.model_config import ONLINE_LLM_MODEL，导入后ONLINE_LLM_MODEL字典中从环境变量里取值的字典项有时值会是None。从启动日志里打印的api_token也能看出是None，但后面的值又是正确的。需要找出原因，并解决这个问题。 
+- [ ] server/utils.py里get_model_worker_config方法在启动时会被调用多次, 对话时也会调用， 其中的from configs.model_config import ONLINE_LLM_MODEL，导入后ONLINE_LLM_MODEL字典中从环境变量里取值的字典项有时值会是None。从启动日志里打印的api_token也能看出是None，但后面的值又是正确的。需要找出原因，并解决这个问题。
+- [ ] 爱助手接口对接事宜中(爱助手介绍看下文)，如果连我们私服搭建的爱助手接口服务，则对话响应会很卡顿且时常报错中断(猜测跟编码有关, 在azs_http.py:58): UnicodeDecodeError: 'utf-8' codec can't decode bytes in position 2592-2593: unexpected end of data
 
 
 ## 关于认证
@@ -85,3 +86,22 @@ python startup.py -a --lite
 
 ## 关于部署
 config.ini里有所有的环境变量覆盖配置项，部署时需保证此文件在项目根目录(暂时不支持命令行指定目录)。
+
+## 爱助手是什么？
+爱助手是一个供应商，提供了当前python项目的部分功能，例如:
+1. 知识库维护
+2. 对话、知识库对话等
+> 爱助手[项目介绍](https://ai.enterpriseai.com.cn/help/)和[接口文档](https://ai.enterpriseai.com.cn/help/zh/api/openApi%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.html#%E4%BA%8C%E3%80%81v2)
+
+但由于当前python项目作为我们的后端，仍有其存在的必要性，例如:
+1. 企微登录需要此后端
+2. 爱助手访问的appSecret维护放在此服务端，放前端不安全
+3. 有自己的后端，无论对于安全性还是后期的扩展性都有有利的
+
+因此，以下接口(不一定全)通过环境变量参数ENABLE_AZS来控制，是通过访问爱助手的接口还是longchain支持的第三方LLM 开放接口来实现对前端的响应:
+1. 知识库列表
+2. LLM对话
+3. 知识库对话
+
+> 为了尽可能减少前后端的改动，对于改动前已经存在的接口(例如上面1,2,3), 则直接在原有接口里通过ENABLE_AZS变量控制，同时保证出入参不变，
+> 这样的话，只需要设置ENABLE_AZS=False 即可重新切回原先自主对接第三方LLM开放平台。注意这个原则。

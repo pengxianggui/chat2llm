@@ -1,5 +1,7 @@
 import asyncio
 import json
+import traceback
+import uuid
 from typing import AsyncIterable
 from typing import List, Optional
 
@@ -9,9 +11,10 @@ from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.chains import LLMChain
 from langchain.prompts.chat import ChatPromptTemplate
 
-from configs import LLM_MODELS, TEMPERATURE, SAVE_CHAT_HISTORY, ENABLE_LLM_MODEL
+from configs import TEMPERATURE, SAVE_CHAT_HISTORY, ENABLE_LLM_MODEL, HISTORY_LEN, ENABLE_AZS
+from server.third.azs_http import fetch_with_streaming
 from server.chat.utils import History
-from server.db.repository import add_chat_history_to_db, update_chat_history
+from server.db.repository import add_chat_history_to_db, update_chat_history, exist_chat_history_id
 from server.utils import get_prompt_template
 from server.utils import wrap_done, get_ChatOpenAI
 
@@ -35,12 +38,13 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
                ):
     history = [History.from_data(h) for h in history]
 
-    async def chat_iterator(query: str,
-                            chat_history_id: str,
-                            history: List[History] = [],
-                            model_name: str = ENABLE_LLM_MODEL,
-                            prompt_name: str = prompt_name,
-                            ) -> AsyncIterable[str]:
+    # longchain代理的LLM
+    async def self_chat_iterator(query: str,
+                                 chat_history_id: str,
+                                 history: List[History] = [],
+                                 model_name: str = ENABLE_LLM_MODEL,
+                                 prompt_name: str = prompt_name,
+                                 ) -> AsyncIterable[str]:
         callback = AsyncIteratorCallbackHandler()
         model = get_ChatOpenAI(
             model_name=model_name,
@@ -57,9 +61,10 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
 
         answer = ""
         try:
-            first_answer = chat_history_id is None  # 首次回答
+            first_answer = not exist_chat_history_id(chat_history_id)  # 不存在这个chat_history_id，则为首次回答
             if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
-                chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query)
+                chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query,
+                                                         response=answer, chat_history_id=chat_history_id)
 
             # Begin a task that runs in the background.
             task = asyncio.create_task(wrap_done(
@@ -90,9 +95,58 @@ async def chat(session_id: str = Body(None, min_length=32, max_length=32, descri
 
         await task
 
-    return StreamingResponse(chat_iterator(query=query,
-                                           chat_history_id=chat_history_id,
-                                           history=history,
-                                           model_name=model_name,
-                                           prompt_name=prompt_name),
-                             media_type="text/event-stream")
+    # 爱助手提供的
+    async def azs_chat_iterator(query: str,
+                                chat_history_id: str,
+                                history: List[History] = [],
+                                ) -> AsyncIterable[str]:
+        queue = asyncio.Queue()
+        answer = ""
+        try:
+            first_answer = not exist_chat_history_id(chat_history_id)  # 不存在这个chat_history_id，则为首次回答
+            if first_answer:  # 首次回答(不是重新回答) 则持久化对话记录
+                chat_history_id = add_chat_history_to_db(session_id=session_id, chat_type="llm_chat", query=query,
+                                                         response=answer, chat_history_id=chat_history_id)
+            params = {
+                "model": "gpt-4o",
+                "stream": True,
+                "temperature": TEMPERATURE,
+                "top_p": 0.95,
+                "apiThirdSessionId": session_id,
+                "contextRecordCount": HISTORY_LEN,
+                "messages": [{
+                    "content": query,
+                    "role": "user"
+                }]
+            }
+            asyncio.create_task(fetch_with_streaming('/v2/chat', params, chat_history_id, queue))
+            while True:
+                chunk = await queue.get()
+                if chunk is None:  # 结束信号
+                    break
+                answer += json.loads(chunk).get('text', '')
+                yield chunk
+
+        except Exception:
+            traceback.print_exc()  # 打印堆栈信息
+            answer = '抱歉, 请换个问法，我可能没听清.'
+            yield json.dumps({"text": answer, "chat_history_id": chat_history_id}, ensure_ascii=False)
+        finally:
+            if SAVE_CHAT_HISTORY and len(chat_history_id) > 0:
+                update_chat_history(chat_history_id, response=answer)
+
+    if chat_history_id is None:
+        chat_history_id = uuid.uuid4().hex
+    # 根据参数配置决定走哪个逻辑
+    if ENABLE_AZS:
+        return StreamingResponse(azs_chat_iterator(query=query,
+                                                   chat_history_id=chat_history_id,
+                                                   history=history),
+                                 media_type="text/event-stream")
+    else:
+        return StreamingResponse(self_chat_iterator(query=query,
+                                                    chat_history_id=chat_history_id,
+                                                    history=history,
+                                                    model_name=model_name,
+                                                    prompt_name=prompt_name),
+                                 media_type="text/event-stream")

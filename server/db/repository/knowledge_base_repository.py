@@ -31,6 +31,7 @@ def list_kbs_from_db_v2(session):
     if kbs:
         for kb in kbs:
             data.append({
+                "id": kb.id,
                 "kb_name": kb.kb_name,
                 "kb_zh_name": kb.kb_zh_name,
                 "kb_info": kb.kb_info,
