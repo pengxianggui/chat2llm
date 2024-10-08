@@ -4,7 +4,7 @@
 这是项目的服务端，基于开源项目[LangChain-Chatchat](https://github.com/chatchat-space/Langchain-Chatchat)的[0.2.7](https://github.com/chatchat-space/Langchain-Chatchat/tree/v0.2.7)版本。
 已经实现基本的服务端功能。
 
-关于原项目的介绍，如果上面github访问慢，还可以查看项目中的原[readme文件](./README_origin.md)。
+关于原工程的介绍，如果上面github访问慢，还可以查看项目中的原[readme文件](./README_origin.md)。
 
 ## 功能
 - [x] 实现真正与LLM对话。
@@ -105,3 +105,4 @@ config.ini里有所有的环境变量覆盖配置项，部署时需保证此文�
 
 > 为了尽可能减少前后端的改动，对于改动前已经存在的接口(例如上面1,2,3), 则直接在原有接口里通过ENABLE_AZS变量控制，同时保证出入参不变，
 > 这样的话，只需要设置ENABLE_AZS=False 即可重新切回原先自主对接第三方LLM开放平台。注意这个原则。
+> 此外，如果启用爱助手接口(ENABLE_AZS=True), 则当前服务端就不涉及其它LLM对接了，也无需做知识库分片等处理了。相当于: 爱助手接口 = 智谱API + 本地的知识库功能
